@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Build outputs — adjust per what your packages/apps actually produce
+dist/
+build/
+.next/
+out/
+
+# Env files — never commit secrets
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Editor/OS cruft
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea/
