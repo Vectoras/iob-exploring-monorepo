@@ -3,6 +3,11 @@
 	import welcome from '$lib/images/svelte-welcome.webp';
 
 	import Counter from './Counter.svelte';
+
+	/** @typedef {import('types').User} User */
+
+	/** @type {User} */
+	let user = { id: 'vectoras', name: 'Vectoras JBD' };
 </script>
 
 <svelte:head>
@@ -19,7 +24,7 @@
 			</picture>
 		</span>
 
-		to your new<br />SvelteKit app
+		<b>{user.name}</b><br />to your new<br />SvelteKit app
 	</h1>
 
 	<h2>
