@@ -15,7 +15,7 @@ To recreate this project with the same configuration:
 
 ```sh
 # recreate this project
-pnpm dlx sv@0.17.0 create --template demo --types jsdoc --add sveltekit-adapter="adapter:auto" vitest="usages:unit" --install pnpm web
+pnpm dlx sv@0.17.0 create --template demo --types ts --add vitest="usages:unit" --install pnpm apps/web
 ```
 
 ## Developing

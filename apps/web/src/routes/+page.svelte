@@ -1,13 +1,13 @@
-<script>
+<script lang="ts">
 	import welcomeFallback from '$lib/images/svelte-welcome.png';
 	import welcome from '$lib/images/svelte-welcome.webp';
 
 	import Counter from './Counter.svelte';
 
-	/** @typedef {import('types').User} User */
+	import type { User } from 'types';
 
-	/** @type {User} */
-	let user = { id: 'vectoras', name: 'Vectoras JBD' };
+	let user: User = { id: 'vectoras', name: 'Vectoras JBD' }
+
 </script>
 
 <svelte:head>
@@ -24,7 +24,7 @@
 			</picture>
 		</span>
 
-		<b>{user.name}</b><br />to your new<br />SvelteKit app
+		<b>{user.name}</b> to your new<br />SvelteKit app
 	</h1>
 
 	<h2>

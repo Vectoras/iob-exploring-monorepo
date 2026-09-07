@@ -243,7 +243,11 @@ importers:
         specifier: ^4.1.8
         version: 4.1.11(vite@8.2.2)
 
-  packages/types: {}
+  packages/types:
+    devDependencies:
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
 
 packages:
 

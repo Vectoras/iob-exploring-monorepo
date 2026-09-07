@@ -3,16 +3,22 @@
   "version": "0.0.1",
   "private": true,
   "description": "just types to be used across the apps and packages",
-  "main": "index.js",
+  "main": "./dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
-  "types": "./index.ts",
   "exports": {
-    ".": "./index.ts"
+    ".": {
+      "development": "./index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3"
   }
 }
