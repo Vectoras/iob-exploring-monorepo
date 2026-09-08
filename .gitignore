@@ -23,5 +23,8 @@ pnpm-debug.log*
 !.vscode/extensions.json
 .idea/
 
+# Turbo
+.turbo/
+
 #OtherS
 PROGRESS.md
