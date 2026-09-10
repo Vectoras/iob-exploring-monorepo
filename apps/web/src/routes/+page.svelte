@@ -1,12 +1,15 @@
 <script lang="ts">
+  import type { PageData } from './$types';
 	import welcomeFallback from '$lib/images/svelte-welcome.png';
 	import welcome from '$lib/images/svelte-welcome.webp';
 
 	import Counter from './Counter.svelte';
+	
+	let { data }: { data: PageData } = $props();
 
 	import type { User } from 'types';
 
-	let user: User = { id: 'vectoras', name: 'Vectoras JBD' }
+	let user: User = $derived(data.user ?? { id: 'vectoras', name: 'Vectoras JBD' });
 
 </script>
 
