@@ -1,6 +1,6 @@
 import Fastify from "fastify";
 import cors from "@fastify/cors";
-import { uniqueNamesGenerator, adjectives, animals } from "unique-names-generator";
+import { uniqueNamesGenerator, adjectives, animals, names } from "unique-names-generator";
 import type { User } from "types";
 
 const fastify = Fastify({ logger: true });
@@ -15,10 +15,15 @@ fastify.get("/random-user", async (): Promise<User> => {
     separator: " ",
     style: "capital",
   });
+  const nickname = uniqueNamesGenerator({
+    dictionaries: [names],
+    style: "capital"
+  });
 
   return {
     id: crypto.randomUUID(),
     name,
+    nickname
   };
 });
 
