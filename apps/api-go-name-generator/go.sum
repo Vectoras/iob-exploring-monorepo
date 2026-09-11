@@ -1,2 +1,4 @@
 github.com/dillonstreator/go-unique-name-generator v1.0.2 h1:0xcsNOvlRHFTVHmsbX57uVIgjvs9F5idZFD+FRf5h0Q=
 github.com/dillonstreator/go-unique-name-generator v1.0.2/go.mod h1:9rSQgkM4cHzPu37cWmaEFkR6g17/EuUIZMm/Zpecops=
+github.com/google/uuid v1.6.0 h1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=
+github.com/google/uuid v1.6.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
