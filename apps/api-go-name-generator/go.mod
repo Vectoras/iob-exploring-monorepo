@@ -9,4 +9,12 @@ require (
 	github.com/google/uuid v1.6.0
 )
 
+require (
+	github.com/bokwoon95/wgo v0.7.1 // indirect
+	github.com/fsnotify/fsnotify v1.10.1 // indirect
+	golang.org/x/sys v0.47.0 // indirect
+)
+
 replace github.com/Vectoras/iob-exploring-monorepo/packages/go-types => ../../packages/go-types
+
+tool github.com/bokwoon95/wgo

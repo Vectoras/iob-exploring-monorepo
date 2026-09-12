@@ -6,6 +6,7 @@ dist/
 build/
 .next/
 out/
+tmp/
 
 # Env files — never commit secrets
 .env
