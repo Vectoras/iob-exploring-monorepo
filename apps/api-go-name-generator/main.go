@@ -6,6 +6,7 @@ import (
 	"net"
 	"net/http"
 
+	"github.com/Vectoras/iob-exploring-monorepo/apps/api-go-name-generator/internal/middleware"
 	"github.com/Vectoras/iob-exploring-monorepo/apps/api-go-name-generator/internal/utils"
 	gotypes "github.com/Vectoras/iob-exploring-monorepo/packages/go-types"
 	ung "github.com/dillonstreator/go-unique-name-generator"
@@ -47,10 +48,10 @@ func main() {
 		w.Write([]byte(responseData))
 	})
 
-	const port = "8080"
+	const port = "3006"
 	srv := &http.Server{
 		Addr:    net.JoinHostPort("", port),
-		Handler: mux,
+		Handler: middleware.WithLogging((middleware.WithCors(mux))),
 	}
 	log.Printf("server listening on port %s\n", port)
 	log.Fatal(srv.ListenAndServe())

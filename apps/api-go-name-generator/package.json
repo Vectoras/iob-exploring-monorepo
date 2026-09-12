@@ -1,0 +1,11 @@
+{
+  "name": "api-go-name-generator",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Simple Go API that returns a random username and id",
+  "scripts": {
+    "dev": "go tool wgo go build -o ./tmp/server . :: ./tmp/server",
+    "build": "go build -o ./dist/server .",
+    "start": "./dist/server"
+  }
+}
