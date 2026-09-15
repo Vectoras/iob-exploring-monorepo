@@ -1,0 +1,25 @@
+{
+  "name": "go-types",
+  "version": "0.0.1",
+  "private": true,
+  "description": "types common to go and ts apps, ts generated with tygo",
+  "main": "./ts/dist/index.js",
+  "scripts": {
+    "generate": "go tool tygo generate",
+    "build": "pnpm run generate && tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "exports": {
+    ".": {
+      "development": "./ts/generated/index.ts",
+      "types": "./ts/dist/index.d.ts",
+      "default": "./ts/dist/index.js"
+    }
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3"
+  }
+}

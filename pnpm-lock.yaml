@@ -274,6 +274,12 @@ importers:
         specifier: ^4.1.8
         version: 4.1.11(@types/node@26.4.1)(vite@8.2.2(@types/node@26.4.1)(esbuild@0.28.2)(tsx@4.23.13))
 
+  packages/go-types:
+    devDependencies:
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+
   packages/types:
     devDependencies:
       typescript:

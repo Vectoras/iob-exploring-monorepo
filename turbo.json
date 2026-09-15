@@ -10,6 +10,7 @@
       "outputs": [".svelte-kit/output/**"]
     },
     "dev": {
+      "dependsOn": ["^build"],
       "cache": false,
       "persistent": true,
     },
