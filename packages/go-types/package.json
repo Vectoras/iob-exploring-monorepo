@@ -1,12 +1,13 @@
 {
-  "name": "go-types",
+  "name": "@iob-exploring-monorepo/go-types",
   "version": "0.0.1",
   "private": true,
   "description": "types common to go and ts apps, ts generated with tygo",
   "main": "./ts/dist/index.js",
   "scripts": {
     "generate": "go tool tygo generate",
-    "build": "pnpm run generate && tsc"
+    "build": "pnpm run generate && tsc",
+    "dev": "go tool wgo -file .go go tool tygo generate"
   },
   "keywords": [],
   "author": "",

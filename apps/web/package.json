@@ -1,5 +1,5 @@
 {
-	"name": "web",
+	"name": "@iob-exploring-monorepo/web",
 	"private": true,
 	"version": "0.0.1",
 	"type": "module",
@@ -21,8 +21,8 @@
 		"@sveltejs/vite-plugin-svelte": "^7.1.2",
 		"svelte": "^5.56.1",
 		"svelte-check": "^4.6.0",
-		"ts-types": "workspace:*",
-		"go-types": "workspace:*",
+		"@iob-exploring-monorepo/ts-types": "workspace:*",
+		"@iob-exploring-monorepo/go-types": "workspace:*",
 		"typescript": "^6.0.3",
 		"vite": "^8.0.16",
 		"vitest": "^4.1.8"
