@@ -1,5 +1,5 @@
 import type { PageLoad } from "./$types";
-import type { User } from "go-types";
+import type { User } from "@iob-exploring-monorepo/go-types";
 
 export const load: PageLoad = async ({ fetch }) => {
   const option = (Math.round(Math.random()) * 5) + 1; // ts (1) or go (6) api

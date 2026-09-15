@@ -1,11 +1,12 @@
 {
-  "name": "ts-types",
+  "name": "@iob-exploring-monorepo/ts-types",
   "version": "0.0.1",
   "private": true,
   "description": "just types to be used across the apps and packages",
   "main": "./dist/index.js",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "check": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",

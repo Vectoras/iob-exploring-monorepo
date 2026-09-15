@@ -1,5 +1,5 @@
 {
-  "name": "api-go-name-generator",
+  "name": "@iob-exploring-monorepo/api-go-name-generator",
   "private": true,
   "version": "0.0.1",
   "description": "Simple Go API that returns a random username and id",
