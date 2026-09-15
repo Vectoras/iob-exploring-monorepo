@@ -1,7 +1,7 @@
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 import { uniqueNamesGenerator, adjectives, animals, names } from "unique-names-generator";
-import type { User } from "types";
+import type { User } from "go-types";
 
 const fastify = Fastify({ logger: true });
 

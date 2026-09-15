@@ -7,7 +7,7 @@
 	
 	let { data }: { data: PageData } = $props();
 
-	import type { User } from 'types';
+	import type { User } from 'go-types';
 
 	let user: User = $derived(data.user ?? { id: 'vectoras', name: 'Vectoras JBD' });
 
