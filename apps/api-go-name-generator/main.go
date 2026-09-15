@@ -53,6 +53,6 @@ func main() {
 		Addr:    net.JoinHostPort("", port),
 		Handler: middleware.WithLogging((middleware.WithCors(mux))),
 	}
-	log.Printf("server listening on port %s\n", port)
+	log.Printf("server listening on port %s\n / http://localhost:%s\n", port, port)
 	log.Fatal(srv.ListenAndServe())
 }

@@ -5,9 +5,13 @@
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]
     },
-    "web#build": {
+    "@iob-exploring-monorepo/web#build": {
       "dependsOn": ["^build"],
       "outputs": [".svelte-kit/output/**"]
+    },
+    "@iob-exploring-monorepo/go-types#build": {
+      "dependsOn": ["^build"],
+      "outputs": ["ts/dist/**"]
     },
     "dev": {
       "dependsOn": ["^build"],
