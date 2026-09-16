@@ -11,7 +11,9 @@
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"test:unit": "vitest",
-		"test": "npm run test:unit -- --run"
+		"test": "npm run test:unit -- --run",
+		"storybook": "storybook dev -p 6006",
+		"build-storybook": "storybook build"
 	},
 	"devDependencies": {
 		"@fontsource/fira-mono": "^5.2.7",
@@ -25,6 +27,16 @@
 		"@iob-exploring-monorepo/go-types": "workspace:*",
 		"typescript": "^6.0.3",
 		"vite": "^8.0.16",
-		"vitest": "^4.1.8"
+		"vitest": "^4.1.8",
+		"storybook": "^10.6.0",
+		"@storybook/sveltekit": "^10.6.0",
+		"@storybook/addon-svelte-csf": "latest",
+		"@chromatic-com/storybook": "latest",
+		"@storybook/addon-vitest": "^10.6.0",
+		"@storybook/addon-a11y": "^10.6.0",
+		"@storybook/addon-docs": "^10.6.0",
+		"@vitest/browser-playwright": "4.1.11",
+		"@vitest/coverage-v8": "4.1.11",
+		"playwright": "latest"
 	}
 }
