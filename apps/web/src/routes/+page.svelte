@@ -8,9 +8,14 @@
 	let { data }: { data: PageData } = $props();
 
 	import type { User } from '@iob-exploring-monorepo/go-types';
+	import { Button } from '@iob-exploring-monorepo/ui-components';
+  import { invalidate } from '$app/navigation';
 
 	let user: User = $derived(data.user ?? { id: 'vectoras', name: 'Vectoras JBD' });
 
+	const reloadUser = () => {
+		invalidate('app:user');
+	}
 </script>
 
 <svelte:head>
@@ -35,6 +40,8 @@
 	</h2>
 
 	<Counter />
+
+	<Button onclick={reloadUser}> Refresh name </Button>
 </section>
 
 <style>
