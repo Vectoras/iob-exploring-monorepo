@@ -21,6 +21,28 @@
     "check": {
       "dependsOn": ["^build"]
     },
+    "lint": {
+      "cache": false
+    },
+    "lint:check": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/eslint.config.js",
+        "$TURBO_ROOT$/.gitignore"
+      ]
+    },
+    "format": {
+      "cache": false
+    },
+    "format:check": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/.prettierrc",
+        "$TURBO_ROOT$/.prettierignore",
+        "$TURBO_ROOT$/.editorconfig",
+        "$TURBO_ROOT$/.gitignore"
+      ]
+    },
     "test": {
       "dependsOn": ["^build"]
     },

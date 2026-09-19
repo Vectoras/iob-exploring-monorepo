@@ -7,7 +7,9 @@
   "scripts": {
     "generate": "go tool tygo generate",
     "build": "pnpm run generate && tsc",
-    "dev": "go tool wgo -file .go go tool tygo generate :: tsc"
+    "dev": "go tool wgo -file .go go tool tygo generate :: tsc",
+    "format": "prettier --write . --ignore-path ../../.gitignore --ignore-path ../../.prettierignore",
+    "format:check": "prettier --check . --ignore-path ../../.gitignore --ignore-path ../../.prettierignore"
   },
   "keywords": [],
   "author": "",
