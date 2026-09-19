@@ -1,4 +1,6 @@
 @import '@fontsource/fira-mono';
+@import 'tailwindcss';
+@import '@iob-exploring-monorepo/ui-components/theme.css';
 
 :root {
 	--font-body:
