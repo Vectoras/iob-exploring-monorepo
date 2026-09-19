@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "go tool wgo go build -o ./tmp/server . :: ./tmp/server",
     "build": "go build -o ./dist/server .",
-    "start": "./dist/server"
+    "start": "./dist/server",
+    "format": "prettier --write . --ignore-path ../../.gitignore --ignore-path ../../.prettierignore",
+    "format:check": "prettier --check . --ignore-path ../../.gitignore --ignore-path ../../.prettierignore"
   }
 }
