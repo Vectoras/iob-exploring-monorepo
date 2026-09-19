@@ -1,75 +1,77 @@
 <script lang="ts">
-  import type { PageData } from './$types';
-	import welcomeFallback from '$lib/images/svelte-welcome.png';
-	import welcome from '$lib/images/svelte-welcome.webp';
+  import type { PageData } from "./$types";
+  import welcomeFallback from "$lib/images/svelte-welcome.png";
+  import welcome from "$lib/images/svelte-welcome.webp";
 
-	import Counter from './Counter.svelte';
-	
-	let { data }: { data: PageData } = $props();
+  import Counter from "./Counter.svelte";
 
-	import type { User } from '@iob-exploring-monorepo/go-types';
-	import { Button } from '@iob-exploring-monorepo/ui-components';
-  import { invalidate } from '$app/navigation';
+  let { data }: { data: PageData } = $props();
 
-	let user: User = $derived(data.user ?? { id: 'vectoras', name: 'Vectoras JBD' });
+  import type { User } from "@iob-exploring-monorepo/go-types";
+  import { Button } from "@iob-exploring-monorepo/ui-components";
+  import { invalidate } from "$app/navigation";
 
-	const reloadUser = () => {
-		invalidate('app:user');
-	}
+  let user: User = $derived(
+    data.user ?? { id: "vectoras", name: "Vectoras JBD" },
+  );
+
+  const reloadUser = () => {
+    invalidate("app:user");
+  };
 </script>
 
 <svelte:head>
-	<title>Home</title>
-	<meta name="description" content="Svelte demo app" />
+  <title>Home</title>
+  <meta name="description" content="Svelte demo app" />
 </svelte:head>
 
 <section>
-	<h1>
-		<span class="welcome">
-			<picture>
-				<source srcset={welcome} type="image/webp" />
-				<img src={welcomeFallback} alt="Welcome" />
-			</picture>
-		</span>
+  <h1>
+    <span class="welcome">
+      <picture>
+        <source srcset={welcome} type="image/webp" />
+        <img src={welcomeFallback} alt="Welcome" />
+      </picture>
+    </span>
 
-		<b>{user.name}</b> to your new<br />SvelteKit app
-	</h1>
+    <b>{user.name}</b> to your new<br />SvelteKit app
+  </h1>
 
-	<h2>
-		try editing <strong>src/routes/+page.svelte</strong>
-	</h2>
+  <h2>
+    try editing <strong>src/routes/+page.svelte</strong>
+  </h2>
 
-	<Counter />
+  <Counter />
 
-	<Button onclick={reloadUser}> Refresh name </Button>
+  <Button onclick={reloadUser}>Refresh name</Button>
 </section>
 
 <style>
-	section {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		flex: 0.6;
-	}
+  section {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    flex: 0.6;
+  }
 
-	h1 {
-		width: 100%;
-	}
+  h1 {
+    width: 100%;
+  }
 
-	.welcome {
-		display: block;
-		position: relative;
-		width: 100%;
-		height: 0;
-		padding: 0 0 calc(100% * 495 / 2048) 0;
-	}
+  .welcome {
+    display: block;
+    position: relative;
+    width: 100%;
+    height: 0;
+    padding: 0 0 calc(100% * 495 / 2048) 0;
+  }
 
-	.welcome img {
-		position: absolute;
-		width: 100%;
-		height: 100%;
-		top: 0;
-		display: block;
-	}
+  .welcome img {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    display: block;
+  }
 </style>

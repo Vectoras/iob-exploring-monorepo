@@ -1,12 +1,17 @@
 import Fastify from "fastify";
 import cors from "@fastify/cors";
-import { uniqueNamesGenerator, adjectives, animals, names } from "unique-names-generator";
+import {
+  uniqueNamesGenerator,
+  adjectives,
+  animals,
+  names,
+} from "unique-names-generator";
 import type { User } from "@iob-exploring-monorepo/go-types";
 
 const fastify = Fastify({ logger: true });
 
 await fastify.register(cors, {
-  origin: ["http://localhost:5173", "http://localhost:5174"]
+  origin: ["http://localhost:5173", "http://localhost:5174"],
 });
 
 fastify.get("/random-user", async (): Promise<User> => {
@@ -17,13 +22,13 @@ fastify.get("/random-user", async (): Promise<User> => {
   });
   const nickname = uniqueNamesGenerator({
     dictionaries: [names],
-    style: "capital"
+    style: "capital",
   });
 
   return {
     id: crypto.randomUUID(),
     name,
-    nickname
+    nickname,
   };
 });
 
