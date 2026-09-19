@@ -4,6 +4,8 @@ node_modules/
 # Build outputs — adjust per what your packages/apps actually produce
 dist/
 build/
+.svelte-kit/
+storybook-static/
 .next/
 out/
 tmp/

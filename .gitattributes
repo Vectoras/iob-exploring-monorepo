@@ -1,0 +1,2 @@
+# Let git detect text files and always use LF in the working tree, on every OS
+* text=auto eol=lf

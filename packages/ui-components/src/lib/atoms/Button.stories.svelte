@@ -1,40 +1,40 @@
 <script module lang="ts">
-	import { defineMeta } from '@storybook/addon-svelte-csf';
-	import Button from './Button.svelte';
+  import { defineMeta } from "@storybook/addon-svelte-csf";
+  import Button from "./Button.svelte";
 
-	const { Story } = defineMeta({
-		title: 'Atoms/Button',
-		component: Button,
-		tags: ['autodocs'],
-		argTypes: {
-			color: {
-				control: 'select',
-				options: ['primary', 'secondary', 'alternative', 'red', 'green']
-			},
-			size: { control: 'select', options: ['xs', 'sm', 'md', 'lg', 'xl'] },
-			disabled: { control: 'boolean' }
-		}
-	});
+  const { Story } = defineMeta({
+    title: "Atoms/Button",
+    component: Button,
+    tags: ["autodocs"],
+    argTypes: {
+      color: {
+        control: "select",
+        options: ["primary", "secondary", "alternative", "red", "green"],
+      },
+      size: { control: "select", options: ["xs", "sm", "md", "lg", "xl"] },
+      disabled: { control: "boolean" },
+    },
+  });
 </script>
 
 <Story name="Default">
-		<Button>Click me</Button>
+  <Button>Click me</Button>
 </Story>
 
-<Story name="Primary" args={{ color: 'primary' }}>
-	{#snippet children(args)}
-		<Button {...args}>Click me</Button>
-	{/snippet}
+<Story name="Primary" args={{ color: "primary" }}>
+  {#snippet children(args)}
+    <Button {...args}>Click me</Button>
+  {/snippet}
 </Story>
 
-<Story name="Secondary" args={{ color: 'secondary' }}>
-	{#snippet children(args)}
-		<Button {...args}>Click me</Button>
-	{/snippet}
+<Story name="Secondary" args={{ color: "secondary" }}>
+  {#snippet children(args)}
+    <Button {...args}>Click me</Button>
+  {/snippet}
 </Story>
 
 <Story name="Disabled" args={{ disabled: true }}>
-	{#snippet children(args)}
-		<Button {...args}>Can't click</Button>
-	{/snippet}
+  {#snippet children(args)}
+    <Button {...args}>Can't click</Button>
+  {/snippet}
 </Story>
