@@ -8,8 +8,10 @@
     "generate": "go tool tygo generate",
     "build": "pnpm run generate && tsc",
     "dev": "go tool wgo -file .go go tool tygo generate :: tsc",
-    "format": "prettier --write . --ignore-path ../../.gitignore --ignore-path ../../.prettierignore",
-    "format:check": "prettier --check . --ignore-path ../../.gitignore --ignore-path ../../.prettierignore"
+    "lint": "golangci-lint run --fix ./...",
+    "lint:check": "golangci-lint run ./...",
+    "format": "golangci-lint fmt ./... && prettier --write . --ignore-path ../../.gitignore --ignore-path ../../.prettierignore",
+    "format:check": "golangci-lint fmt -d ./... && prettier --check . --ignore-path ../../.gitignore --ignore-path ../../.prettierignore"
   },
   "keywords": [],
   "author": "",

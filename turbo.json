@@ -28,6 +28,7 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/eslint.config.js",
+        "$TURBO_ROOT$/.golangci.yml",
         "$TURBO_ROOT$/.gitignore"
       ]
     },
@@ -40,6 +41,7 @@
         "$TURBO_ROOT$/.prettierrc",
         "$TURBO_ROOT$/.prettierignore",
         "$TURBO_ROOT$/.editorconfig",
+        "$TURBO_ROOT$/.golangci.yml",
         "$TURBO_ROOT$/.gitignore"
       ]
     },
