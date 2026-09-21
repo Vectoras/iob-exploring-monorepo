@@ -6,11 +6,13 @@ import (
 	"net"
 	"net/http"
 
-	"github.com/Vectoras/iob-exploring-monorepo/apps/api-go-name-generator/internal/middleware"
 	"github.com/Vectoras/iob-exploring-monorepo/apps/api-go-name-generator/internal/utils"
 	gotypes "github.com/Vectoras/iob-exploring-monorepo/packages/go-types"
 	ung "github.com/dillonstreator/go-unique-name-generator"
 	"github.com/dillonstreator/go-unique-name-generator/dictionaries"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 	"github.com/google/uuid"
 )
 
@@ -25,13 +27,17 @@ func main() {
 		ung.WithStyle(ung.Capital),
 	)
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write([]byte(http.StatusText(http.StatusOK)))
-	})
-	mux.HandleFunc("/random-user", func(w http.ResponseWriter, r *http.Request) {
+	router := chi.NewRouter()
+
+	router.Use(middleware.Logger)
+	router.Use(middleware.Heartbeat("/healthz"))
+	router.Use(cors.Handler(cors.Options{
+		AllowedOrigins: []string{"http://localhost:*", "http://127.0.0.1:*"},
+		AllowedMethods: []string{"GET"},
+		AllowedHeaders: []string{"Content-Type"},
+	}))
+
+	router.Get("/random-user", func(w http.ResponseWriter, r *http.Request) {
 		responseData, err := json.Marshal(gotypes.User{
 			ID:       uuid.NewString(),
 			Name:     nameGenerator.Generate(),
@@ -45,13 +51,13 @@ func main() {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write([]byte(responseData))
+		_, _ = w.Write(responseData)
 	})
 
 	const port = "3006"
 	srv := &http.Server{
 		Addr:    net.JoinHostPort("", port),
-		Handler: middleware.WithLogging((middleware.WithCors(mux))),
+		Handler: router,
 	}
 	log.Printf("server listening on port %s\n / http://localhost:%s\n", port, port)
 	log.Fatal(srv.ListenAndServe())
