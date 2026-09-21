@@ -11,7 +11,11 @@ import type { User } from "@iob-exploring-monorepo/go-types";
 const fastify = Fastify({ logger: true });
 
 await fastify.register(cors, {
-  origin: ["http://localhost:5173", "http://localhost:5174"],
+  origin: [
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "http://localhost:5175",
+  ],
 });
 
 fastify.get("/random-user", async (): Promise<User> => {
