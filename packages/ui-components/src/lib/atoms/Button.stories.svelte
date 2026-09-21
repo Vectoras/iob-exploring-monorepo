@@ -22,19 +22,19 @@
 </Story>
 
 <Story name="Primary" args={{ color: "primary" }}>
-  {#snippet children(args)}
+  {#snippet template(args)}
     <Button {...args}>Click me</Button>
   {/snippet}
 </Story>
 
 <Story name="Secondary" args={{ color: "secondary" }}>
-  {#snippet children(args)}
+  {#snippet template(args)}
     <Button {...args}>Click me</Button>
   {/snippet}
 </Story>
 
 <Story name="Disabled" args={{ disabled: true }}>
-  {#snippet children(args)}
+  {#snippet template(args)}
     <Button {...args}>Can't click</Button>
   {/snippet}
 </Story>
