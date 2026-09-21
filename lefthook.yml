@@ -1,0 +1,48 @@
+# pre-commit: fast, staged files only, tools called directly (no turbo).
+# Fixers write to the same files, so they run one after another:
+# lint --fix, then format (format has the last word).
+pre-commit:
+  parallel: false
+  commands:
+    1-eslint:
+      glob: "*.{js,ts,svelte}"
+      run: pnpm exec eslint --fix --no-warn-ignored {staged_files}
+      stage_fixed: true
+
+    # golangci-lint works per package, so one command per Go package.
+    # glob + root: the command is skipped when no .go file in that package is staged.
+    2-golangci-api-go:
+      root: apps/api-go-name-generator/
+      glob: "*.go"
+      run: golangci-lint run --fix ./...
+      stage_fixed: true
+
+    3-golangci-go-types:
+      root: packages/go-types/
+      glob: "*.go"
+      run: golangci-lint run --fix ./...
+      stage_fixed: true
+
+    # UNVERIFIED: that `fmt` accepts individual files (test: `golangci-lint fmt -d <file>`).
+    4-gofmt:
+      glob: "*.go"
+      run: golangci-lint fmt {staged_files}
+      stage_fixed: true
+
+    5-prettier:
+      glob: "*.{js,ts,svelte,json,css,md,yml,yaml}"
+      run: pnpm exec prettier --write --ignore-unknown {staged_files}
+      stage_fixed: true
+
+# pre-push: check only, nothing is modified (fixes made at push time would not
+# be part of the pushed commits). Everything goes through turbo, so results are
+# cached and shared with manual runs; turbo schedules all tasks in one graph
+# (`check` depends on ^build). Add `--continue` to see every failure in one go.
+pre-push:
+  parallel: true
+  commands:
+    turbo-checks:
+      run: pnpm turbo run lint:check format:check check
+    # turbo only sees packages; this covers files at the repo root.
+    format-root:
+      run: pnpm run format:root:check
