@@ -6,6 +6,8 @@ require github.com/dillonstreator/go-unique-name-generator v1.0.2
 
 require (
 	github.com/Vectoras/iob-exploring-monorepo/packages/go-types v0.0.0-00010101000000-000000000000
+	github.com/go-chi/chi/v5 v5.3.2
+	github.com/go-chi/cors v1.2.2
 	github.com/google/uuid v1.6.0
 )
 
