@@ -1,13 +1,14 @@
 package main
 
 import (
-	"encoding/json"
+	"context"
 	"log"
 	"net"
 	"net/http"
 
-	"github.com/Vectoras/iob-exploring-monorepo/apps/api-go-name-generator/internal/utils"
 	gotypes "github.com/Vectoras/iob-exploring-monorepo/packages/go-types"
+	"github.com/danielgtaylor/huma/v2"
+	"github.com/danielgtaylor/huma/v2/adapters/humachi"
 	ung "github.com/dillonstreator/go-unique-name-generator"
 	"github.com/dillonstreator/go-unique-name-generator/dictionaries"
 	"github.com/go-chi/chi/v5"
@@ -15,6 +16,10 @@ import (
 	"github.com/go-chi/cors"
 	"github.com/google/uuid"
 )
+
+type RandomUserOutput struct {
+	Body gotypes.User
+}
 
 func main() {
 	nameGenerator := ung.NewUniqueNameGenerator(
@@ -37,28 +42,32 @@ func main() {
 		AllowedHeaders: []string{"Content-Type"},
 	}))
 
-	router.Get("/random-user", func(w http.ResponseWriter, r *http.Request) {
-		responseData, err := json.Marshal(gotypes.User{
-			ID:       uuid.NewString(),
-			Name:     nameGenerator.Generate(),
-			Nickname: utils.Ptr(nicknameGenerator.Generate()),
-		})
-		if err != nil {
-			log.Printf("Error marshalling JSON: %s", err)
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-			return
-		}
+	api := humachi.New(router, huma.DefaultConfig("@iob-exploring-monorepo/api-go-name-generator", "0.0.1"))
 
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write(responseData)
-	})
+	huma.Register(api,
+		huma.Operation{
+			Method:      http.MethodGet,
+			Path:        "/random-user",
+			Summary:     "Generate a silly random user",
+			Description: "Simple endpoint to generate a silly random user with an id, a username and a nickname, which arguably is the more normal one.",
+		},
+		func(ctx context.Context, i *struct{}) (*RandomUserOutput, error) {
+			response := &RandomUserOutput{
+				Body: gotypes.User{
+					ID:       uuid.NewString(),
+					Name:     nameGenerator.Generate(),
+					Nickname: new(nicknameGenerator.Generate()),
+				},
+			}
+			return response, nil
+		},
+	)
 
 	const port = "3006"
 	srv := &http.Server{
 		Addr:    net.JoinHostPort("", port),
 		Handler: router,
 	}
-	log.Printf("server listening on port %s\n / http://localhost:%s\n", port, port)
+	log.Printf("server listening on port %s (http://localhost:%s\n)", port, port)
 	log.Fatal(srv.ListenAndServe())
 }
