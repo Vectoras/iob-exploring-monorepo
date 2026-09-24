@@ -42,7 +42,10 @@ func main() {
 		AllowedHeaders: []string{"Content-Type"},
 	}))
 
-	api := humachi.New(router, huma.DefaultConfig("@iob-exploring-monorepo/api-go-name-generator", "0.0.1"))
+	humaConfig := huma.DefaultConfig("@iob-exploring-monorepo/api-go-name-generator", "0.0.1")
+	humaConfig.Info.Description = "First huma project, exploring"
+	humaConfig.CreateHooks = nil
+	api := humachi.New(router, humaConfig)
 
 	huma.Register(api,
 		huma.Operation{
