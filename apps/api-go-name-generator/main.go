@@ -49,8 +49,10 @@ func main() {
 
 	huma.Register(api,
 		huma.Operation{
+			OperationID: "get-random-user",
 			Method:      http.MethodGet,
 			Path:        "/random-user",
+			Tags:        []string{"users"},
 			Summary:     "Generate a silly random user",
 			Description: "Simple endpoint to generate a silly random user with an id, a username and a nickname, which arguably is the more normal one.",
 		},
@@ -71,6 +73,6 @@ func main() {
 		Addr:    net.JoinHostPort("", port),
 		Handler: router,
 	}
-	log.Printf("server listening on port %s (http://localhost:%s\n)", port, port)
+	log.Printf("server listening on port %s (http://localhost:%s)\n", port, port)
 	log.Fatal(srv.ListenAndServe())
 }
