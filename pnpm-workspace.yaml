@@ -1,3 +1,4 @@
+storeDir: .cache/pnpm-store
 packages:
   - "apps/*"
   - "packages/*"
