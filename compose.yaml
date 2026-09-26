@@ -1,0 +1,25 @@
+services:
+  api_go:
+    build:
+      context: ./
+      dockerfile: ./apps/api-go-name-generator/Dockerfile
+      args:
+        - nodeVersion=24
+        - pnpmVersion=11.25.0
+        - goVersion=1.27.1
+        - golangciVersion=2.14.0
+        - cacheDir=/monorepo/.cache
+    environment:
+      - NODE_ENV=development
+      - CI=true
+    ports:
+      - "3006:3006"
+    working_dir: /monorepo
+    volumes:
+      - ./:/monorepo
+    command:
+      [
+        "sh",
+        "-c",
+        "pnpm install && pnpm turbo --filter @iob-exploring-monorepo/api-go-name-generator dev",
+      ]

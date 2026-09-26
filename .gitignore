@@ -1,5 +1,6 @@
 # Dependencies
 node_modules/
+.cache/
 
 # Build outputs — adjust per what your packages/apps actually produce
 dist/
