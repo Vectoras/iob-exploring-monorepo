@@ -1,6 +1,6 @@
 # Monorepo Practice — Progress Log
 
-Tracks what's actually done in this repo, decisions made along the way, and what's still open. Practice checklist and concept background live in `.claude/monorepo_concepts.md`; this file is the status/decisions layer. **Deliberately kept out of git** (not committed) — local working notes only.
+Tracks what's actually done in this repo, decisions made along the way, and what's still open. Practice checklist and concept background live in `.claude/monorepo_concepts.md`; this file is the status/decisions layer. **Tracked in git as of 2026-09-26** — previously kept local-only; now committed alongside the rest of the repo's history.
 
 ## Status snapshot (2026-09-07)
 
