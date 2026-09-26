@@ -31,5 +31,4 @@ pnpm-debug.log*
 .turbo/
 
 #Specifics
-PROGRESS.md
 packages/go-types/ts
