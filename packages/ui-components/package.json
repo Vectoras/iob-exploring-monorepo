@@ -21,7 +21,8 @@
   "files": [
     "dist",
     "!dist/**/*.test.*",
-    "!dist/**/*.spec.*"
+    "!dist/**/*.spec.*",
+    "src/lib"
   ],
   "sideEffects": [
     "**/*.css"
