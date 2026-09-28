@@ -1,6 +1,6 @@
 module github.com/Vectoras/iob-exploring-monorepo/packages/go-types
 
-go 1.26.1
+go 1.27.1
 
 require (
 	github.com/bokwoon95/wgo v0.7.1 // indirect

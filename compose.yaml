@@ -1,25 +1,58 @@
+name: exploring_monorepo
+
+x-versions-args: &versions-args
+  NODE_VERSION: 24
+  PNPM_VERSION: 11.25.0
+  GO_VERSION: 1.27.1
+  GOLANGCI_VERSION: 2.14.0
+  CACHE_DIR: /monorepo/.cache
+
+x-service-defaults: &service-defaults
+  build:
+    context: ./
+    dockerfile: ./Dockerfile
+    args:
+      <<: *versions-args
+  environment:
+    - NODE_ENV=development
+    - CI=true
+  working_dir: /monorepo
+  volumes:
+    - ./:/monorepo
+  depends_on:
+    install:
+      condition: service_completed_successfully
+
 services:
+  install:
+    <<: *service-defaults
+    depends_on: {}
+    command: ["sh", "-c", "pnpm install"]
+
   api_go:
-    build:
-      context: ./
-      dockerfile: ./apps/api-go-name-generator/Dockerfile
-      args:
-        - nodeVersion=24
-        - pnpmVersion=11.25.0
-        - goVersion=1.27.1
-        - golangciVersion=2.14.0
-        - cacheDir=/monorepo/.cache
-    environment:
-      - NODE_ENV=development
-      - CI=true
+    <<: *service-defaults
     ports:
       - "3006:3006"
-    working_dir: /monorepo
-    volumes:
-      - ./:/monorepo
     command:
       [
         "sh",
         "-c",
-        "pnpm install && pnpm turbo --filter @iob-exploring-monorepo/api-go-name-generator dev",
+        "pnpm turbo --filter @iob-exploring-monorepo/api-go-name-generator dev",
       ]
+
+  api_ts:
+    <<: *service-defaults
+    ports:
+      - "3001:3001"
+    command:
+      [
+        "sh",
+        "-c",
+        "pnpm turbo --filter @iob-exploring-monorepo/api-ts-name-generator dev",
+      ]
+
+  web:
+    <<: *service-defaults
+    ports:
+      - "5173:5173"
+    command: ["sh", "-c", "pnpm turbo --filter @iob-exploring-monorepo/web dev"]

@@ -23,6 +23,9 @@ export default defineConfig({
     }),
     tailwindcss(),
   ],
+  server: {
+    host: true,
+  },
   test: {
     expect: {
       requireAssertions: true,
