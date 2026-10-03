@@ -214,7 +214,7 @@ Tracks what's actually done in this repo, decisions made along the way, and what
 
 ## Open questions / things to figure out
 
-- Naming convention/scope for packages (e.g. `@exploring-monorepo/*` vs. unscoped) — still unscoped (`types`, `web`). Pure convention, no functional requirement yet.
+- [x] ~~Naming convention/scope for packages~~ — **resolved 2026-09-15**: all workspace packages are scoped `@iob-exploring-monorepo/*` (see the 2026-09-15 session entries above). Verified 2026-09-29.
 
 ## Session end (2026-09-16) — Storybook adopted for `apps/web` and `packages/ui-components`, UI-library trial (flowbite-svelte vs Skeleton) set up
 
@@ -703,6 +703,12 @@ Tracks what's actually done in this repo, decisions made along the way, and what
 
 **Not yet done / open follow-ups:**
 
-- [ ] Nothing from this session (or the prior same-day session) has been committed yet — everything above is still working-tree state only.
+- [x] ~~Nothing from this session (or the prior same-day session) has been committed yet~~ — committed afterwards as `da7685b` ("multiple services") + `555c92b` ("updated progress.md"). Checked 2026-09-30.
 - [ ] Compose scope is now considered settled at 4 services (`install`, `api_go`, `api_ts`, `web`) — no database, no `go-types` service planned. Revisit only if a real future need appears, not proactively.
 - [ ] The "single source-of-truth version file + bump script" deferred design question (Node/Go version pins currently live as literals in `compose.yaml`'s `x-versions-args`, separately from `go.mod`/`go.work`'s own `go` directives) remains open, now more clearly so since the `.env`-based approach was tried and reverted.
+
+## Session (2026-09-30) — exploration declared done; documentation phase started
+
+- [x] **Project scope considered covered** by the user ("satisfactorily, even though there are imperfections"). Production (`turbo prune --docker`, multi-stage images) was discussed but explicitly **not** pursued.
+- [x] **Corrections to earlier status notes**: `chi` + `huma` were already done (2026-09-21/22/25 sessions); the "nothing committed" line above was stale (see it).
+- [x] **Documentation phase started.** From here on it is logged in `.claude/artifacts/docs-progress.md` (entries moved there on 2026-10-01). This file stays the log of the exploration itself, which is finished.

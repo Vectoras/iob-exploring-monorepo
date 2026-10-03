@@ -1,0 +1,114 @@
+# Documentation — Progress Log
+
+Tracks the documentation phase: turning what was learned in this repo into Vectoras's own, generic guide and reference for building web apps. The exploration itself (the repo) is logged in `PROGRESS.md` at the repo root. This file holds only the documentation work. Entries up to 2026-09-30 were moved here from `PROGRESS.md` on 2026-10-01.
+
+## Files in `.claude/artifacts/`
+
+| File | Role |
+| ---- | ---- |
+| `guide.md` | Compact "purpose → technology", no reasoning |
+| `reference.md` | Decisions, why, lessons, roads not taken |
+| `outline-guide.md`, `outline-reference.md` | Outlines the two drafts were written from |
+| `topics.md`, `topics-1.md`, `technologies.md` | Topic pool, first topic list (kept by the user), every technology used or evaluated |
+| `guide-evaluation.md` | Gaps found when reading `guide.md` in isolation: question → ▶ ANSWER (found in repo/docs) → ◆ DECISION (agreed in discussion) |
+| `docs-progress.md` | This file |
+| `to-explore.md` | Decisions that need hands-on experience first, with what to try in a future project |
+
+## Session (2026-09-30) — exploration declared done; documentation phase started
+
+- [x] **Documentation phase started.** Goal: Vectoras's own, **fully generic** opinion on how to build web apps — this repo is only where the lessons were learned; no repo-specific names, no version numbers (latest for new projects).
+- **Working files live in `.claude/artifacts/`** (shared working docs, not final docs):
+  - `topics.md` (topic pool), `topics-1.md` (first list, kept by the user), `technologies.md` (everything used + evaluated-not-adopted).
+  - `outline-guide.md` → `guide.md`: compact "purpose → technology", no reasoning.
+  - `outline-reference.md` → `reference.md`: decisions, why, lessons, roads not taken.
+  - Both use the same sections: 0 Stance, 1 Workspace & orchestration, 2 Code quality, 3 Development environment, 4 Frontend, 5 Backend, 6 Type safety across ecosystems, 7 Testing, 8 Production deployment (not tried).
+- **Stance decisions made while outlining**: monorepo (pnpm + Turborepo) at the centre; JS frontend; **Go-only backend** (JS and Elixir removed from the backend sections so no project picks them up — maybe separate docs later); code quality at the root, enforced by Lefthook; cross-ecosystem type safety required; **packages unscoped by default**, scope only when numerous; no Tailwind, styled library choice TBD (not flowbite); Storybook = workshop (developing in isolation) in the guide, workshop + documentation in the reference; Fastify comparison kept in the reference only; Go tests via `go test`, e2e via Playwright; hand-written shared TS package may hold runtime code (type guards).
+- [x] **First drafts of `guide.md` and `reference.md` written.**
+
+**Open after that session** (status updated 2026-10-01):
+
+- [ ] Review both drafts. _Started 2026-10-01 via `guide-evaluation.md`._
+- [ ] "Why Go" placeholders in `reference.md` (§0 and §5) — the user writes the reasoning.
+- [x] ~~Styled component library choice (guide §4 says TBD)~~ — decided 2026-10-01, see `guide-evaluation.md` item 1.
+- [ ] Decide where "Lessons (not yet placed)" goes in the reference (own section vs. spread out).
+- [x] ~~Add runtime validation of API responses via type guards as an open item~~ — decided 2026-10-01: Zod, see `guide-evaluation.md` item 2.
+- [ ] Offered, not answered: mark reference §8 "not tried" too (heading has it, confirm); drop "since Go 1.22" or keep.
+
+## Session (2026-10-01) — guide evaluated in isolation; items 1–3 decided
+
+- [x] **Isolated evaluation of `guide.md`**: Claude read only `guide.md`, with no other project context, and listed what it would have to assume to scaffold a project from it: 25 items (3 blockers, 15 silent gaps, 5 missing topics, 2 minor). Saved as `guide-evaluation.md`.
+- [x] **Answers added from the repo**: Claude then read all the project's md files and configs and answered each item (11 answered, 8 partial, 6 open). Main finding: the guide names tools, but the conventions that connect them (task names, script naming, tygo wiring, cache dir, layout) live only in `reference.md` or the repo's config files.
+- [x] **Format agreed** for `guide-evaluation.md`: question → `▶ ANSWER` (Claude, from the repo) → `◆ DECISION` (after discussion). Decisions override answers and are what goes into the guide/reference.
+- [x] **Decided together** (full text in `guide-evaluation.md`):
+  1. **UI components**: always in a shared UI package. Library or hand-written is chosen per project, with no restrictions on libraries. Own components use plain CSS, not Tailwind (a personal preference that doesn't limit tool choice).
+  2. **Frontend ↔ backend**:
+     - Calls go through the SvelteKit server by default, and must when security or privacy is involved; browser-direct is allowed for performance.
+     - Same origin via a proxy instead of CORS: Vite `server.proxy` in dev (target = Compose service name), `handleFetch` for server-side calls, a reverse proxy in production (not tried).
+     - URLs come from env vars, with `.env.example` committed.
+     - Zod schemas are hand-written in the shared TS package and checked with `satisfies z.ZodType<T>` against the tygo types. Generating them with `ts-to-zod` was rejected as too much setup.
+     - The API client is a generic `apiFetch` core plus one-line per-endpoint functions. It throws a typed `ApiError`; the UI uses `error()` for loads and one shared toast helper for actions.
+  3. **Dev environment**: always inside containers, no host fallback. One container per service, a one-shot install service, then `turbo --filter <app> dev` per container.
+- [x] **New file `to-explore.md`**: decisions that need experience first. It holds the component approach, proxy vs CORS (proxy chosen on industry practice, still to test), and, carried over from `PROGRESS.md`, single container vs one per service and mise. The user removed a "to verify" note about this repo: **this repo itself is no longer a concern**, only the generic docs are.
+- [x] **Documentation entries moved** from `PROGRESS.md` into this file.
+
+## Session (2026-10-03) — items 4–16 decided; item 2 revised; item 26 added
+
+- [x] **Item 4 (repo layout) decided**: the repo's layout adopted as is. `apps/*` + `packages/*` as the only workspace globs, Go modules beside JS packages (own `go.mod` + manifest-only `package.json`), `go.work` at the root, module path mirroring the repo URL, nested grouping only when `packages/` gets crowded.
+- [x] **Item 5 (task config and pre-push) decided** as generic rules, not as a config table: tasks are independent unless one really reads another's output (so no blanket `^build`); read-only tasks are cached, fixers and `dev` are not; outputs and outside-the-package config inputs are declared. Pre-push runs lint, format and type check. **No tests in the hook: tests belong to CI.** (Tests on pre-push was first wanted and added to `to-explore.md`, then dropped the same session after looking at industry practice.)
+- [x] **Item 6 (TypeScript config) decided**: TypeScript and never plain JavaScript (the guide only implied it, now stated); one base `tsconfig` at the repo root that every package extends; `strict: true` in the base. A dedicated `tsconfig` workspace package was not chosen.
+- [x] **Item 7 (root config vs per-package scripts) decided**: config at the root only; scripts in every package, run through the task runner; a separate root-level script for root files; root scripts only delegate.
+- [x] **Item 6 reopened and confirmed**: how root config reaches the task runner. Three options compared (root file + task inputs, root file + global dependency, config package) along with industry practice. Kept: one root base file extended locally, with root config files listed as task inputs. The options and the known cost (crossing the package boundary with `../..`) are recorded in the item.
+- [x] **Item 8 (script names) decided**: one fixed set of script names across all packages (`build`, `dev`, `test`, `typecheck`, `lint`, `format`, `lint:check`, `format:check`); a package defines only those that apply. The type check is **`typecheck`**, not SvelteKit's scaffolded `check` (renamed at creation). Go packages have none.
+- [x] **Item 9 (lint and format rule sets) decided**: ESLint from the recommended presets, formatter-compat config last, ignores from `.gitignore`, not type-aware for now; Prettier with defaults plus the framework plugin. Prettier gets **no special version rule**: latest at creation, then pinned, like everything else.
+- [x] **`to-explore.md` §5 added**: type-aware linting, to be tried again (plain TS packages first, then Svelte).
+- [x] **Item 10 (Go lint and format rule set) decided**: golangci-lint's standard linter set and `gofmt`, as a **starting point, not a limit**. Nothing more was added for lack of experience; `goimports` and `golines` were tried briefly and dropped because the scope was getting too broad, not on merit. `reference.md` §2 needs rewording to say so.
+- [x] **`to-explore.md` §6 added**: Go linters and formatters beyond the standard set.
+- [x] **Item 11 (git hooks) decided**: hook tool as a root dev dependency (install script must be allowed); pre-commit fixes staged files in sequence, formatting last, package-level linters once per package; pre-push verifies through the task runner.
+- [x] **Pre-push skip behaviour checked by Claude** against Lefthook 2.1.14's source and a throwaway repo (in the scratchpad, not this repo). The old note "first push is skipped" could **not** be reproduced: a first push is checked. What is skipped: deletion-only pushes, empty commits, and a new branch identical to the remote's default. The deletion-only hole is accepted, since CI is the gate.
+- [x] **`reference.md` §2 edited** (the first decisions applied to it): the pre-push skip line corrected; "roads not taken" reworded so type-aware ESLint, goimports and golines read as set aside for scope and still open, plus a line that more Go linters are expected.
+- [x] **Item 12 (how shared packages are consumed) decided, then revised the same day**:
+  - First version: source under the `development` condition plus a built entry point, `customConditions` in the base `tsconfig`.
+  - **Final: shared packages are not built; they export their source** ("Just-in-Time packages" in Turborepo's docs). Only apps build. No `development` condition, no `dist`, no package `build` script.
+  - Reason: with a SvelteKit frontend and a Go-only backend, every consumer compiles source itself. The repo only built packages because it had a Node service at the time.
+  - Checked by Claude in a throwaway workspace (not hands-on experience for Vectoras; it stays in `to-explore.md` §7): Playwright imports runtime code (a type guard) from an unbuilt workspace package; plain Node cannot.
+  - Add a build only for: a consumer that can't compile source, publishing outside the repo, or scale.
+  - Knock-on edits: item 2 (Zod runtime code needs no build) and item 5 (no `^build` by default; the real dependency is on generated code).
+- [x] **`to-explore.md` §7 added**: test runners (Vitest and Playwright) compiling unbuilt workspace packages.
+- [x] **Item 13 (generated types) decided**: generator config in the types package; the package exports the generated TS directly (no compile step); generated code gitignored (committing it was not chosen); generation is its own `generate` task, which consumers' `typecheck`, `build`, `dev` and `test` depend on; the package's `dev` script regenerates on change. `generate` added to item 8's script names.
+- [x] **Item 14 (toolchain pinning) decided**: one version per runtime and tool; the dev image is the pin; exact versions written once in the Compose file as build arguments with no defaults; package manager installed directly, not through Corepack; **no package manager version in `package.json`** (it was only there for Corepack); no host-side pins. Go's own version directive is a second place to bump. A single source of truth stays open (`to-explore.md` §4, mise).
+- [x] **Item 15 (Docker dev setup) decided**: one generic full-toolchain image built on the JS runtime's image; tools outside the mounted path; non-root user; whole repo bind-mounted; installs only in containers; caches in **`.cache/`** (`pnpm-store`, `go`, `go-build`), named as in the repo at the user's request; fixed ports; servers listen on all interfaces.
+  - **Editor**: Compose alone starts and stops services, independent of the editor. No `devcontainer.json` (it would hand the lifecycle to the editor). Which service to attach to is a conscious choice. Extensions are recommended through the workspace file.
+- [x] **`to-explore.md` §8 added and marked VERY HIGH PRIORITY, the first thing to try**: a dedicated editing service that runs nothing, with the running services slimmed to their own needs (closer to production). If adopted it changes items 15, 14 and 3.
+- [x] **Item 16 (frontend adapter and rendering) decided**:
+  - Production is likely a hosting platform (Netlify or Cloudflare), not a container. The adapter follows the deployment target and is set at creation; the auto adapter stays only while the target is unknown.
+  - Rendering: server-side by default; prerender every page that needs no API data; a prerendered page makes no API calls; browser-only needs a reason.
+  - The frontend's server code uses web-standard features only, no Node-only modules. Such work belongs in the Go API.
+  - Section 8 consequences: the platform builds the frontend; `turbo prune` + Docker only for container deployments; the API's host is open.
+- [x] **Item 2 (frontend ↔ backend) revised** as a consequence. The 2026-10-01 version (browser-direct allowed, one origin via a proxy) is replaced:
+  - **The app's own API is always called through the frontend's server** ("backend for frontend"). No CORS and no proxy for it, in dev or production. Browser-direct calls with CORS were considered and not chosen.
+  - Page data in a server `load`; user actions through form actions; frontend endpoints as the exception.
+  - **Live updates: a ticketed direct channel that carries signals, not data**; the browser re-fetches through the frontend's server. The one exception to the rule.
+  - API kept private by a private network or a shared secret. The API client is server-only.
+  - Zod validation unchanged.
+- [x] **Item 26 added** to `guide-evaluation.md`: authentication and sessions, open. Only the shape is settled (the frontend's server holds the session and passes the user's identity to the API).
+- [x] **`to-explore.md`**: §2 (proxy vs CORS) closed as no longer applicable. Entries for the live-update channel and for hosting-platform deployment were added and then removed at the user's request; both stay recorded in items 2 and 16 as "not tried".
+
+**State at the end of the session**
+
+- `guide-evaluation.md`: items 1–16 have a `◆ DECISION`. Items 17–25 and the new item 26 don't yet.
+- `guide.md` is untouched and still describes the old setup. `reference.md` has only the §2 edits from item 11. Both now disagree with the decisions in several places, mainly:
+  - shared packages are not built (item 12): the `development` condition, package builds and `^build` are out;
+  - the API is only called through the frontend's server (item 2): CORS and the proxy are out;
+  - production is likely a hosting platform (item 16): section 8's frontend image row only applies to containers;
+  - the type-check script is `typecheck`, and `generate` is a task (items 8, 13).
+- `to-explore.md` has 8 entries. §2 is closed. **§8 (dedicated editing service, slim service images) is the first thing to try.**
+- How the items are worked (agreed this session):
+  - Decisions are generic rules, not the repo's config.
+  - One item at a time: stay on it until the user says to move on.
+  - Anything Claude verified is marked "checked by Claude" and doesn't count as the user's hands-on experience.
+
+**Next:**
+
+1. Continue `guide-evaluation.md` from **item 17** (Go service layout), one by one, adding `◆ DECISION` blocks. Then 18–25, then item 26 (authentication).
+2. Once the items are decided, apply the decisions to `guide.md` and `reference.md`. Each decision has a "Guide impact" line.
+3. The open items from 2026-09-30 above ("Why Go" reasoning, where "Lessons (not yet placed)" goes, the two small offers).
