@@ -51,7 +51,7 @@ Tracks the documentation phase: turning what was learned in this repo into Vecto
 - [x] **New file `to-explore.md`**: decisions that need experience first. It holds the component approach, proxy vs CORS (proxy chosen on industry practice, still to test), and, carried over from `PROGRESS.md`, single container vs one per service and mise. The user removed a "to verify" note about this repo: **this repo itself is no longer a concern**, only the generic docs are.
 - [x] **Documentation entries moved** from `PROGRESS.md` into this file.
 
-## Session (2026-10-03) — items 4–16 decided; item 2 revised; item 26 added
+## Session (2026-10-03) — items 4–20 decided; item 21 started (incomplete); item 24 proposed; item 2 revised; item 26 added
 
 - [x] **Item 4 (repo layout) decided**: the repo's layout adopted as is. `apps/*` + `packages/*` as the only workspace globs, Go modules beside JS packages (own `go.mod` + manifest-only `package.json`), `go.work` at the root, module path mirroring the repo URL, nested grouping only when `packages/` gets crowded.
 - [x] **Item 5 (task config and pre-push) decided** as generic rules, not as a config table: tasks are independent unless one really reads another's output (so no blanket `^build`); read-only tasks are cached, fixers and `dev` are not; outputs and outside-the-package config inputs are declared. Pre-push runs lint, format and type check. **No tests in the hook: tests belong to CI.** (Tests on pre-push was first wanted and added to `to-explore.md`, then dropped the same session after looking at industry practice.)
@@ -92,23 +92,51 @@ Tracks the documentation phase: turning what was learned in this repo into Vecto
   - Zod validation unchanged.
 - [x] **Item 26 added** to `guide-evaluation.md`: authentication and sessions, open. Only the shape is settled (the frontend's server holds the session and passes the user's identity to the API).
 - [x] **`to-explore.md`**: §2 (proxy vs CORS) closed as no longer applicable. Entries for the live-update channel and for hosting-platform deployment were added and then removed at the user's request; both stay recorded in items 2 and 16 as "not tried".
+- [x] **Item 17 (Go service layout) decided**: `cmd/<name>/main.go` from the start (a root `main.go` was the repo's choice; changed after looking at the Go team's layout guide); everything else in `internal/`, no `pkg/`; inside `internal/`, start flat, then feature packages with the layers as files, plus a few technical packages for shared infrastructure. The types package exists from the start in any project with a frontend; other shared Go modules are extracted on second use.
+  - The internal layout was first added to `to-explore.md` (§9), then removed at the user's request: it is the default, with no plan to test it. The patterns considered are recorded in the item.
+- [x] **Item 18 (end-to-end tests) decided**, not tried by anyone: a separate workspace package per frontend app, in a **third top-level dir `e2e/`** (`e2e/<app>/`, package `<app>-e2e`); script `test:e2e`; the tests run against a stack that Compose already started and don't launch servers themselves; own on-demand Compose service and image holding the browsers; run in CI against a production build. Tests inside the frontend app were considered and kept only for frontend-only projects.
+  - **Item 4 revised**: three workspace dirs (`apps/`, `packages/`, `e2e/`).
+  - **Item 8 revised (script naming rule)**: a script that splits becomes `<category>:<variant>`. Now `lint:fix` / `lint:check`, `format:fix` / `format:check`, `test:unit` / `test:e2e`. The bare category may exist to run all variants where that makes sense; none does today, and there is no bare `test`. Mentions in items 5, 10 and 13 updated.
+- [x] **Item 19 (env vars and secrets) decided**:
+  - Dev: Compose injects the variables; non-secrets are written in the Compose file; secrets in a gitignored `.env` beside the app, with a committed `.env.example`; no root `.env`. What is a secret in production is a secret in dev too (dev stays as close to production as possible); the ignore file has an explicit `!.env.example`.
+  - Frontend: the framework's env modules, private by default, read at runtime by default.
+  - Go: one config struct filled once at startup with **`caarlos0/env`**, failing on a missing, empty or invalid required variable, passed explicitly. No `.env` loader, no full config framework. Compared with `sethvargo/go-envconfig` by Claude from READMEs and GitHub data. This settles the config-loading part of item 22.
+  - Every variable an app reads is declared in the task config. Production secrets live in the host's settings (not tried).
+- [x] **Item 20 (CI) decided as a starting position, marked "not explored at all"**: CI is the gate; GitHub Actions (GitLab of interest); lint, format, type checks, `build`, `test:unit`, `test:e2e` through the task runner; "affected" filter on pull requests; **jobs run inside the dev image**, to keep everything consistent with dev (the platform's own setup steps were chosen first, then dropped the same day; pros and cons are in the item; speed optimisations still to be worked out). **Cache between runs is open**: the user will look into it later.
+- [x] **`to-explore.md` §9 added**: CI, never set up (workflow, affected filter, cache, environment, e2e job, GitLab).
+- [ ] **Item 21 (persistence) started, left INCOMPLETE at the user's request, to come back to.** Persistence is now in scope (it was dropped from the exploration).
+  - Decided: PostgreSQL; its own Compose service in dev; a named volume for the data; migration tool probably `goose`.
+  - Not decided: confirming the migration tool, which migration practices to adopt (Claude listed them in the item), query layer, how migrations run in dev, database rows vs. API types, database tests, seed data, connection settings, production hosting.
+- [ ] **Item 24 (latest vs. pinned) opened out of order at the user's request, proposal made, nothing decided.** The user stopped for the day before answering. Claude's proposal, to pick up from:
+  1. Latest stable versions at creation; the docs carry no version numbers.
+  2. "Pinned" means exact versions in the manifests (the package manager set to save exact versions), never ranges or `latest`.
+  3. The lockfile is committed, and installs never change it outside a deliberate update (frozen-lockfile installs in the install service and in CI).
+  4. One version of each dependency across the workspace, through the package manager's catalog feature (tried by no one).
+  5. Go needs nothing extra (`go.mod` records exact versions, `go.sum` is committed).
+  6. Updates are deliberate, as their own change, checked by CI. Cadence and tooling (Renovate or Dependabot) open.
+  - **Waiting on the user**: rule 2 (exact versions in manifests, or ranges with the lockfile as the pin); rule 4 (adopt catalogs as the default?); rule 6 (leave open, or add to `to-explore.md`).
 
 **State at the end of the session**
 
-- `guide-evaluation.md`: items 1–16 have a `◆ DECISION`. Items 17–25 and the new item 26 don't yet.
+- `guide-evaluation.md`: items 1–20 have a `◆ DECISION`. Item 21 is started but **incomplete**. Item 24 has a proposal waiting for answers (above). Items 22, 23, 25 and 26 are untouched.
 - `guide.md` is untouched and still describes the old setup. `reference.md` has only the §2 edits from item 11. Both now disagree with the decisions in several places, mainly:
   - shared packages are not built (item 12): the `development` condition, package builds and `^build` are out;
   - the API is only called through the frontend's server (item 2): CORS and the proxy are out;
   - production is likely a hosting platform (item 16): section 8's frontend image row only applies to containers;
-  - the type-check script is `typecheck`, and `generate` is a task (items 8, 13).
-- `to-explore.md` has 8 entries. §2 is closed. **§8 (dedicated editing service, slim service images) is the first thing to try.**
+  - Go services use `cmd/<name>/` + `internal/`, and config is loaded with `caarlos0/env` (items 17, 19); env vars, CI and persistence have no place in the guide yet (items 19, 20, 21);
+  - the type-check script is `typecheck`, and `generate` is a task (items 8, 13);
+  - scripts follow `<category>:<variant>` (`lint:fix`, `format:fix`, `test:unit`, `test:e2e`), and there is a third workspace dir `e2e/` (items 8, 4, 18).
+- `to-explore.md` has 9 entries (§9 is CI, never set up). §2 is closed. **§8 (dedicated editing service, slim service images) is the first thing to try.**
 - How the items are worked (agreed this session):
   - Decisions are generic rules, not the repo's config.
   - One item at a time: stay on it until the user says to move on.
+  - Where the user asks "what is the industry standard?", say whether it was checked this session or comes from Claude's knowledge.
   - Anything Claude verified is marked "checked by Claude" and doesn't count as the user's hands-on experience.
 
 **Next:**
 
-1. Continue `guide-evaluation.md` from **item 17** (Go service layout), one by one, adding `◆ DECISION` blocks. Then 18–25, then item 26 (authentication).
-2. Once the items are decided, apply the decisions to `guide.md` and `reference.md`. Each decision has a "Guide impact" line.
-3. The open items from 2026-09-30 above ("Why Go" reasoning, where "Lessons (not yet placed)" goes, the two small offers).
+1. **Finish item 24**: get the user's answers to the three open questions, then write its `◆ DECISION`.
+2. Then the untouched items: **22** (backend conventions; its config loading is already settled in item 19), **23**, **25**, and **26** (authentication).
+3. **Come back to item 21** (persistence) and finish its "Still to decide" list.
+4. Once the items are decided, apply the decisions to `guide.md` and `reference.md`. Each decision has a "Guide impact" line.
+5. The open items from 2026-09-30 above ("Why Go" reasoning, where "Lessons (not yet placed)" goes, the two small offers).

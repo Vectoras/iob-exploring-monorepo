@@ -93,3 +93,17 @@ Each entry has:
   7. Compare the slim images with what a production image would need.
 - **Decide by**: whether editing survives a service crash, image sizes and build times, how many places a toolchain version now has to be written (item 14), and how much Compose config it adds.
 - **Affects if adopted**: item 15 ("one generic image"), item 14 (versions per image), item 3 (what each container runs), and §3 of this file (single container vs. one per service).
+
+## 9. CI: never set up
+
+- **Origin**: `guide-evaluation.md` item 20 (2026-10-03). Nothing about CI was explored, by Vectoras or by Claude. The item's decision is a starting position only.
+- **Current default**: GitHub Actions; jobs run inside the dev image; lint, format and type checks plus `build`, `test:unit` and `test:e2e` through the task runner; the "affected" filter on pull requests; cache between runs undecided.
+- **What to try**:
+  1. A workflow on pull requests that runs the checks, the build and the unit tests through the task runner, with a branch rule that blocks merging until it passes.
+  2. The "affected" filter: change one package and confirm only it and its dependents run. Check what it needs from git history (a shallow checkout may not be enough).
+  3. **Cache between runs** (open): first the platform's own cache holding the task runner's cache folder; then Turborepo's remote cache (Vercel-hosted, or self-hosted). Compare run times, setup, and whether dev machines should share it.
+  4. **Environment**: run the jobs inside the dev image, as chosen. Sort out file ownership and the non-root user on the runner. Then the optimisations: caching the image's layers between runs, and building the image once and pulling it from a registry. For comparison, try the same job with the platform's own setup steps (the table in item 20).
+  5. The e2e job: Compose starting the stack with a production build of the frontend, then the e2e service (item 18).
+  6. **GitLab CI**: the same pipeline there, to compare with GitHub Actions.
+- **Decide by**: run time with and without cache, how many places a toolchain version is written, whether a CI failure can be reproduced locally, and how much config each option needs.
+- **Affects if changed**: item 14 (version pins), item 5 (what the hook leaves to CI), item 18 (e2e in CI).

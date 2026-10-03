@@ -20,7 +20,9 @@ Evaluation of `guide.md`, done in isolation (no other project context): what wou
 | ✅ answered | 4, 5, 7, 8, 9, 10, 11, 13, 15, 23, 25 |
 | ⚠️ partial | 2, 3, 6, 12, 14, 17, 22, 24 |
 | ❌ open | 1, 16, 18, 19, 20, 21, 26 (26 added 2026-10-03) |
-| ◆ decided together | 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 (next to discuss: 17; item 2 revised 2026-10-03) |
+| ◆ decided together | 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 (item 2 revised 2026-10-03; still to discuss: 22, 23, 25, 26) |
+| ◆ started, incomplete | 21 (persistence: to come back to) |
+| In discussion | 24 (proposal made 2026-10-03, no decision yet; see `docs-progress.md`) |
 
 Most ✅ answers live in `reference.md` or in the repo's config files, **not in `guide.md`**. The guide's main gap is that it names tools but leaves out the conventions that connect them.
 
@@ -141,11 +143,12 @@ Most ✅ answers live in `reference.md` or in the repo's config files, **not in 
 > **◆ DECISION** (2026-10-03)
 >
 > - **Two top-level dirs**: `apps/*` holds deployables, `packages/*` holds shared libraries. These are the only two workspace globs in `pnpm-workspace.yaml`.
+>   - **Revised 2026-10-03 (item 18): a third dir, `e2e/*`**, holds the end-to-end test packages, so `apps/` stays deployables only. Three workspace globs.
 > - **Go modules live in the same `apps/` and `packages/` dirs** as JS packages. Each has its own `go.mod` plus a manifest-only `package.json`, so pnpm and Turborepo see it.
 > - **`go.work` sits at the repo root** and `use`s every Go module.
 > - **Go module path mirrors the repo URL**: `github.com/<owner>/<repo>/<apps|packages>/<name>`, so the module stays importable.
 > - **Nested grouping** (`packages/<group>/*`) waits until `packages/` gets crowded.
-> - Guide impact: §1 gains a layout row (`apps/` + `packages/`, Go and JS side by side, `go.work` at the root, module path convention).
+> - Guide impact: §1 gains a layout row (`apps/` + `packages/` + `e2e/`, Go and JS side by side, `go.work` at the root, module path convention).
 
 ### 5. `turbo.json`: task names, `dependsOn` (`^build` before `lint`/`check`?), cache `outputs`, `persistent` dev. What "all checks" on pre-push includes (tests? type check?).
 
@@ -175,7 +178,7 @@ Most ✅ answers live in `reference.md` or in the repo's config files, **not in 
 >
 > **Caching**
 > - Tasks that only read (checks, tests, builds) are cached.
-> - Tasks that rewrite source files (fixers such as `lint`, `format`) are not cached.
+> - Tasks that rewrite source files (fixers such as `lint:fix`, `format:fix`) are not cached.
 > - Long-running tasks (`dev`) are not cached and are marked persistent.
 > - A task that produces files declares them as outputs, otherwise a cache hit restores nothing.
 > - A task that reads config from outside its package (root lint/format config) lists those files as inputs, otherwise a config change gives a stale cache hit.
@@ -237,7 +240,11 @@ Most ✅ answers live in `reference.md` or in the repo's config files, **not in 
 
 > **◆ DECISION** (2026-10-03)
 >
-> - **One fixed set of script names across all packages**, in both ecosystems: `build`, `dev`, `test`, `typecheck`, `generate` (code generation, item 13), `lint` and `format` (fix), `lint:check` and `format:check` (verify only).
+> - **One fixed set of script names across all packages**, in both ecosystems: `build`, `dev`, `typecheck`, `generate` (code generation, item 13), `lint:fix` and `lint:check`, `format:fix` and `format:check`, `test:unit` and `test:e2e` (item 18).
+> - **Naming rule (revised 2026-10-03, during item 18)**: a script that splits into several becomes a category, named `<category>:<variant>`.
+>   - `lint` and `format` split into `:fix` (rewrites files) and `:check` (verify only). The earlier bare `lint` and `format` for the fixers are gone.
+>   - `test` splits by kind: `test:unit`, `test:e2e`. Story tests get their own script, or are the `test:unit` script when they are the frontend's only unit tests.
+>   - **The bare category name may exist as a script that runs all its variants together, where that makes sense.** None of the three does today: fixing and checking together is pointless, and there is **no bare `test`**, since e2e tests need a running stack.
 > - **The type check is `typecheck`, not `check`.** It says what it does. SvelteKit scaffolds `check` (and `check:watch`); rename them when creating the package. A script name is only a label in `package.json`, so nothing else depends on it.
 > - **A package defines only the scripts that apply to it.** The task runner skips packages that lack a script.
 > - **Go packages have no `typecheck`.** The compiler already type-checks during `build`.
@@ -299,7 +306,7 @@ Most ✅ answers live in `reference.md` or in the repo's config files, **not in 
 > - Import sorting (`goimports`) and line-length formatting (`golines`) were each tried briefly and **dropped for the time being, because the project's scope was getting too broad**, not because they were judged bad. Both stay open; see `to-explore.md` §6.
 >
 > **Scripts**
-> - The same script names as every other package (item 8): `lint` and `format` fix, `lint:check` and `format:check` verify.
+> - The same script names as every other package (item 8): `lint:fix` and `format:fix` fix, `lint:check` and `format:check` verify.
 > - A Go package's format scripts also run Prettier on its non-Go files (JSON, Markdown, YAML), so nothing in the package is left unformatted.
 >
 > **Guide impact**: §2's Go column gains "standard linter set, `gofmt`, as a starting point". `reference.md` §2 "roads not taken": reword the goimports and golines entries to "tried briefly, dropped for scope, still open".
@@ -393,7 +400,7 @@ Most ✅ answers live in `reference.md` or in the repo's config files, **not in 
 >   - Not chosen: committing it. Type changes would show in diffs and the task dependency below would go away, but a forgotten regeneration gives a mismatch, and a CI check would be needed to police it.
 > - **Being gitignored also excludes it from lint and format**, because both take their ignores from `.gitignore` (item 9). No separate exclusion list.
 > - **Generation is its own task, `generate`**, added to the script names from item 8.
-> - **Tasks that read the generated files depend on it**: consumers' `typecheck`, `build`, `dev` and `test` depend on their dependencies' `generate`. This is the one real dependency left under item 5's rule. It makes a fresh checkout, the pre-push hook and CI work with no manual step.
+> - **Tasks that read the generated files depend on it**: consumers' `typecheck`, `build`, `dev` and the `test:*` scripts depend on their dependencies' `generate`. This is the one real dependency left under item 5's rule. It makes a fresh checkout, the pre-push hook and CI work with no manual step.
 > - **In dev, the package's own `dev` script regenerates on every change** to the Go source, so the frontend picks up a changed struct without a restart.
 > - **Types with no direct equivalent are mapped explicitly**, e.g. a Go timestamp to a string.
 > - Guide impact: §6's "Go → TS types" row gains "generated code gitignored, `generate` task, consumers depend on it". §1's script names gain `generate`.
@@ -507,11 +514,73 @@ Most ✅ answers live in `reference.md` or in the repo's config files, **not in 
 > - Shared Go code is its own module under `packages/<name>`, linked with `go.work` + `require`/`replace`.
 > - No rule for when to switch to `cmd/`.
 
+> **◆ DECISION** (2026-10-03)
+>
+> **Entry points**
+> - **`cmd/<name>/main.go` from the start**, even with one binary. A service usually gains a second one (a worker, a migration command), and moving later changes the build command, the dev-reload command and the image.
+> - `main.go` only wires things together: config, router, starting the server.
+> - Basis: the Go team's layout guide puts several commands in `cmd/`, and its server example uses `cmd/` plus `internal/`. A root `main.go` is for small tools.
+>
+> **Everything else is in `internal/`**
+> - A service is not a library, so nothing outside the module imports it, and the compiler enforces that. No `pkg/` directory.
+>
+> **Inside `internal/`**
+> - **Start flat, split when it grows.**
+> - **When splitting: feature first, layers inside.**
+>   - One package per area of the domain. The layers show up as files in it (handler, logic, storage).
+>   - A few technical packages hold what is truly shared: database connection, config, middleware.
+>   - The layer rule that matters is the direction of dependencies (handler → logic → storage), not the folder names.
+>   - A feature that gets complicated can alone get stricter layering (interfaces at its boundaries).
+> - There is no industry standard for this; the Go team's guide stops at `cmd/` and `internal/`. Considered and not chosen as the default (from Claude's knowledge, not checked against sources):
+>   - **By layer** (`handlers`, `services`, `storage`, `models`): one feature change touches every package, and a shared `models` package is usually needed to avoid import cycles. Go's package-naming guidance argues against it.
+>   - **Pure by feature**: no home for code that several features need.
+>   - **By dependency** (domain types in one central package, the others named after what they wrap): the central package grows with every feature.
+>   - **Hexagonal / clean architecture**: too many interfaces and too much mapping for a service that mostly reads and writes records.
+> - Not tried (the exploration's service was a single file). Vectoras chose not to list it in `to-explore.md`.
+>
+> **Shared Go code**
+> - **The types package exists from the start** in any project with a frontend, even if empty. Only a backend-only project goes without it.
+> - **Any other shared Go module is extracted only when code is used in more than one place.** It is its own module under `packages/` (item 4).
+> - One app never imports another app's module.
+>
+> **Guide impact**: §5 gains a layout row (`cmd/<name>/` + `internal/`, feature first with layers inside) and a shared-code row (types package from the start, others on second use).
+
 ### 18. Playwright: its own workspace package? How does it start frontend + backend?
 
 > **▶ ANSWER** ❌ open · Where: `reference.md` §7; `PROGRESS.md` "parked for good"
 >
 > End-to-end testing was never done. Playwright only appears as the Vitest browser provider for Storybook story tests, and its browsers were never installed. There's no package, layout or startup decision.
+
+> **◆ DECISION** (2026-10-03) — not tried by anyone
+>
+> **Where the tests live**
+> - **A separate workspace package, one per frontend app**, in a third top-level dir: `e2e/<app>/`, with the package named `<app>-e2e` (item 4 gains the `e2e/*` glob).
+> - Splitting by area inside one app (checkout, account) is done with folders and the test runner's own projects or tags, not with more packages.
+> - **Why not inside the frontend app**, as unit tests are:
+>   - A unit test imports the package's own code. An e2e test imports nothing from the app; it drives a running system through a URL.
+>   - That system is the frontend plus the API. A separate package declares both apps as dependencies, so a change in either re-runs the tests. Inside the frontend app, the frontend would have to depend on the API, and an API change would then invalidate the frontend's own build and checks.
+>   - Editing a test file would count as a change to the app and invalidate its build cache.
+>   - The test runner stays out of the frontend app's dependencies.
+> - **Exception**: a frontend-only project with no API keeps the tests inside the app, as the framework scaffolds them.
+> - Also considered: the e2e package in `apps/`. Not chosen, so `apps/` stays deployables only.
+> - Industry practice: no single standard. Tests inside the app are the default for single-app repos (Playwright's initialiser, SvelteKit's scaffold). For monorepos, Turborepo's Playwright guide recommends "a Playwright package for each test suite" (checked by Claude on 2026-10-03; it names no directory). Nx generates a separate `<app>-e2e` project (from Claude's knowledge, not confirmed).
+>
+> **Script**
+> - `test:e2e`, separate from `test:unit` (item 8). Nothing runs e2e tests by accident.
+>
+> **How the stack is started**
+> - **The tests don't start the servers.** They run against a stack that is already up, started by Compose like any dev session (item 3). The test runner's own option for launching servers is not used.
+> - The base URL comes from an env var.
+>
+> **Container**
+> - **Its own Compose service and its own image**, which holds the browsers. They are large and need system libraries, so they stay out of the generic dev image (item 15).
+> - The service is not started with the rest; it is run on demand.
+> - The test runner's version in the package and the browsers in the image must match. The version is pinned like every other tool (item 14).
+>
+> **When they run**
+> - In CI, not in git hooks (item 5). In CI they run against a production build of the frontend, not the dev server.
+>
+> **Guide impact**: §1's layout row gains `e2e/`. §3 gains the on-demand e2e service with its own image. §7's end-to-end row says where the tests live and that they run against a running stack.
 
 ## Missing entirely
 
@@ -527,17 +596,122 @@ Most ✅ answers live in `reference.md` or in the repo's config files, **not in 
 >
 > No pattern exists for app config or secrets.
 
+> **◆ DECISION** (2026-10-03)
+>
+> **Where the values live in dev**
+> - **Compose injects the variables.** Each service gets only its own. Apps never load `.env` files themselves.
+> - **Non-secret values are written in the Compose file** (addresses, ports, feature switches), which is committed.
+> - **Secrets go in a gitignored `.env` beside the app that uses them.** Compose reads it for that service only.
+> - **What is protected in production is protected in dev too.** A value that is a secret in production (e.g. the shared secret between the frontend's server and the API, item 2) is handled as a secret in dev, even when the dev value guards nothing. Dev stays as close to production as possible. Treating such dev-only values as non-secret was proposed by Claude and rejected.
+> - A fresh clone therefore needs each app's `.env` created from its `.env.example` before the services start.
+> - **A committed `.env.example` beside it** lists every variable the app reads, with dummy values.
+> - **The ignore file names it explicitly**: `.env*` is ignored, followed by the exception `!.env.example`. No broader exception pattern.
+> - **No root `.env`**, so one app's secrets never reach another. Also considered and not chosen: everything in per-app `.env` files.
+>
+> **Reading them in the frontend**
+> - Through the framework's env modules, never `process.env` (item 16: no Node-only features).
+> - **Private by default.** The public prefix is only for values that are safe to show in the browser.
+> - **Read at runtime by default**, so one build works in every environment. Build-time values only for true constants.
+>
+> **Reading them in Go** (this settles the config-loading part of item 22)
+> - **One config struct, filled once at startup**, in its own package under `internal/` (item 17).
+> - **Filled with an env-to-struct parser: `caarlos0/env`.** Struct tags give each variable's name and default, and the struct is the list of everything the service reads.
+> - **A missing, empty or invalid required variable stops the service at startup** with a clear message. Every field without a default is required.
+> - **The struct is passed explicitly** to what needs it. No other code reads the environment, and there is no global.
+> - **No `.env` loader** (`godotenv`): Compose in dev and the host in production already set the variables. **No full config framework** (`viper`, `koanf`): more than a service configured by env vars needs.
+> - Why this parser, compared by Claude on 2026-10-03 from the READMEs and GitHub data (not tried by Vectoras):
+>   - The most used of its kind, no dependencies, feature-complete and still maintained.
+>   - One option makes every field without a default required, and a `notEmpty` option rejects empty values, which fits the fail-at-startup rule.
+>   - It can read a value from a file, which suits secrets mounted as files.
+>   - Known cost: it has had accidental breaking changes within a major version (retracted releases). Pinning the version covers that.
+>   - `sethvargo/go-envconfig` was the alternative: a cleaner and more extensible design, but a much smaller user base and a new major version days old. `kelseyhightower/envconfig` has had little activity for over a year. The standard library alone was the other option; a parser was preferred.
+> - Industry practice (from Claude's knowledge): the pattern above (env vars, one typed struct, fail at startup, passed explicitly) is widely agreed. There is no consensus on the library.
+>
+> **Task runner**
+> - **Every variable an app reads is declared in the task config**: as a cache input if it changes a cached output, as passthrough otherwise. In strict mode an undeclared variable never reaches the task.
+>
+> **Production** (not tried)
+> - Secrets are set in the hosting platform's or the host's own settings, never in the repo or in an image.
+>
+> **Guide impact**: a new env/secrets block (probably in §3) with the dev rules, plus a row in §4 (framework env modules, runtime by default) and a row in §5 (config: `caarlos0/env`, one struct at startup).
+
 ### 20. CI (and Turborepo remote cache): pre-push is the only enforcement.
 
 > **▶ ANSWER** ❌ open
 >
 > Never set up. The only CI-related decision is "deploy what changed" via `--filter=[ref]`, verified locally (`reference.md` §1, §8). Remote cache only appears in `monorepo_concepts.md`.
 
+> **◆ DECISION** (2026-10-03) — **not explored at all.** CI was never set up, by Vectoras or by Claude. Everything below is a starting position proposed by Claude and accepted as such, to be confirmed hands-on (`to-explore.md` §9).
+>
+> **Role**
+> - **CI is the gate.** The main branch only accepts changes through a pull request whose CI run passed.
+>
+> **Platform**
+> - **GitHub Actions.** GitLab CI is of interest and still to be explored.
+>
+> **What it runs**
+> - Everything the pre-push hook runs (lint, format and type checks, for packages and for root files, item 5), plus `build`, `test:unit` and `test:e2e`.
+> - All through the task runner, with the same script names as in dev (item 8).
+> - **Only what changed, on pull requests**: the task runner's "affected" filter limits the run to the packages touched and their dependents. The main branch runs everything.
+> - **E2E**: Compose starts the stack with a production build of the frontend, then the e2e service runs (item 18).
+>
+> **Environment**
+> - **CI runs inside the dev image**, built from the same Compose file as dev, so everything stays as consistent as possible: the toolchain versions come from the one place they are written (item 14), and a CI failure reproduces locally.
+> - The CI platform's own setup steps (installing the runtimes and tools directly on the runner) were first chosen, then dropped the same day: they put the versions in a second place and move CI away from the dev setup.
+> - **Known cost: speed.** Optimisations will have to be worked out (not explored): caching the image's layers between runs, or building the image once and pulling it from a registry.
+>
+> | | Dev image in CI (chosen) | Platform's setup steps |
+> | --- | --- | --- |
+> | Speed | Slower: the image is built or pulled on every run unless its layers are cached | Fast: runtimes are preinstalled or downloaded in seconds, with built-in dependency caching |
+> | Setup effort | Higher: image build, layer cache, and running every step through Compose | Low: the standard, documented way on the platform |
+> | Versions | One place: the same build arguments as dev | A second place to write them; can drift from dev |
+> | Same as dev | Yes: the same image, so a CI failure reproduces locally | No: a different OS image and install method, so "passes locally, fails in CI" is possible |
+> | Portability | Mostly portable: any CI that runs containers | Tied to the platform's actions; moving to another CI means rewriting them |
+> | Mounted-repo issues | File ownership and the non-root user (item 15) need care on a CI runner | None |
+>
+> **Cache between runs**
+> - **Open.** Vectoras will look into it later. The options: the CI platform's own cache holding the task runner's cache folder; Turborepo's remote cache hosted by Vercel; a self-hosted remote cache.
+>
+> **Guide impact**: a new CI block (its own section, or in §2 next to the hooks), marked "not tried": platform, what runs, the affected filter, the environment choice. The cache row stays "open".
+
 ### 21. Persistence: database, migrations — in scope or not?
 
 > **▶ ANSWER** ❌ out of scope · Where: `PROGRESS.md` 2026-09-28
 >
 > Explicitly dropped from this project ("decided against, full stop"). The guide should either say "not covered" or leave persistence for a later doc.
+
+> **◆ DECISION** (2026-10-03) — **INCOMPLETE, to come back to.** Persistence is in scope. Only the points under "Decided" are settled; nothing here was tried.
+>
+> **Decided**
+> - **PostgreSQL.**
+> - **Its own Compose service in dev**, with a **named volume** to persist the data.
+> - **Migration tool: `goose`, probably** (Vectoras's leaning, not yet compared with the alternatives).
+> - Already fixed by other items: only the Go API talks to the database (item 16); the connection lives in a technical package under `internal/` (item 17); its credentials are secrets (item 19); the version is pinned like every other tool (item 14).
+>
+> **Migration best practices** (listed by Claude from its own knowledge, not checked against sources; **not yet adopted**)
+> - Versioned SQL files in the repo, applied in order, with the tool recording which ones ran. They live with the Go API.
+> - Written by hand as plain SQL, not generated from Go structs by an ORM.
+> - A migration is never edited once merged. A mistake is fixed with a new one.
+> - Roll forward in production. "Down" migrations are for dev.
+> - Run as a separate step before the new version starts, not by the service at startup (a second binary under `cmd/`, item 17).
+> - Each migration runs in a transaction.
+> - Backward-compatible steps: add first, switch the code, remove later.
+> - Separate database roles: one that may change the schema, one that may only read and write data.
+> - CI applies every migration to an empty database, and tests run against the result.
+> - Seed and dev data are kept apart from migrations.
+>
+> **Still to decide** (Claude's suggestion in brackets, none accepted yet)
+> 1. Confirm the migration tool (`goose` vs. `golang-migrate`; comparison offered, not done).
+> 2. Which of the migration practices above to adopt.
+> 3. Query layer (`pgx` as the driver plus `sqlc`, which generates typed Go from hand-written SQL; alternatives: plain `pgx`, or an ORM).
+> 4. How migrations run in dev (a one-shot Compose service before the API starts).
+> 5. Database rows vs. API types (kept separate; the shared types package holds only what the API exposes).
+> 6. Tests that touch the database (against a real PostgreSQL).
+> 7. Seed data for dev and e2e (a separate, repeatable seed command).
+> 8. Connection settings (one connection-string secret per app).
+> 9. Production hosting (open, like the API's host in item 16).
+>
+> **Guide impact**: none until the item is completed. Then a persistence block: database, dev service and volume, migration tool, query layer.
 
 ### 22. Backend conventions: logging (`slog`?), config loading, error response shape.
 
