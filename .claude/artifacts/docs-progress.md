@@ -116,7 +116,33 @@ Tracks the documentation phase: turning what was learned in this repo into Vecto
   6. Updates are deliberate, as their own change, checked by CI. Cadence and tooling (Renovate or Dependabot) open.
   - **Waiting on the user**: rule 2 (exact versions in manifests, or ranges with the lockfile as the pin); rule 4 (adopt catalogs as the default?); rule 6 (leave open, or add to `to-explore.md`).
 
-**State at the end of the session**
+## Session (2026-10-05) — item 24 resumed
+
+- [x] **Item 24 (latest vs. pinned) decided**: latest stable at creation, then every dependency pinned to an **exact version** (ranges with the lockfile as the pin were not chosen); lockfile committed and never changed by a plain install; **one version per dependency through pnpm catalogs, for every dependency, with `catalogMode: strict`** (without strict mode a catalog doesn't stop drift); Go: see the correction below; updates are deliberate, their own change, checked by CI.
+  - Catalogs are **tried by no one**: the rule comes from pnpm's docs, read by Claude on 2026-10-05.
+  - **Go corrected the same day** (Vectoras asked why "nothing extra for Go"): exact versions and the lockfile need nothing, but one version across modules is not automatic, and a build outside the workspace could differ from dev. Rule added: `go work sync` after any dependency change (from Claude's knowledge, not checked).
+  - **`to-explore.md` §10 added**: catalogs (day-to-day use, whether strict mode catches hand-typed versions, scaffolding tools, the update tool).
+  - **`to-explore.md` §9, step 7 added**: dependency update tooling. Renovate is the first candidate (Vectoras's preference; Claude agreed, mainly because it also runs on GitLab and can update versions written outside manifests), Dependabot the comparison.
+
+- [x] **Item 25 (Go tools) decided**: a Go dev tool is a tool dependency (`go get -tool`) of the module that runs it, exact version in the module file; tools are per module; exception: when a tool's docs say to use its released binary, the dev image installs it at an exact version (the Go linter today; its install page read by Claude on 2026-10-05). Tools are not isolated from the service's dependencies; accepted for small tools.
+  - **`to-explore.md` §10, step 7 added**: watch whether a tool changes a service's dependency versions; try a separate tools module file if it does.
+
+- [x] **Item 23 (ignore file, editor config, line endings) decided**: one root `.gitignore` (scaffolded per-package ones merged in and deleted, because lint and format read only the root file); patterns by name; OS and editor files ignored in the repo; no leftover entries. `.editorconfig` at the root, agreeing with the formatters (Prettier reads it), and an input of the format tasks. **LF line endings on every OS** through `.gitattributes`: Vectoras first read the rule the wrong way round (LF breaking Windows); settled after Claude explained that CRLF is what breaks scripts in the Linux containers. `.dockerignore` left to production builds. All from Claude's knowledge, not checked.
+
+**State at the end of the session (2026-10-05)**
+
+- `guide-evaluation.md`: items 1–20 and 23, 24, 25 have a `◆ DECISION`. Item 21 is incomplete. Items 22 and 26 are untouched.
+- `to-explore.md` has 10 entries: §9 gained step 7 (dependency update tooling), §10 is new (catalogs, `go work sync`, Go tool dependencies). §8 is still the first thing to try.
+- `guide.md` and `reference.md` were not touched today.
+
+**Next** (replaces the list at the bottom):
+
+1. Item **22** (backend conventions: logging, error response shape; config loading is settled in item 19) and item **26** (authentication and sessions), in the order Vectoras picks.
+2. Back to item **21** (persistence) and its "Still to decide" list.
+3. Apply the decisions to `guide.md` and `reference.md` (each decision has a "Guide impact" line).
+4. The open items from 2026-09-30: "Why Go" reasoning, where "Lessons (not yet placed)" goes, the two small offers.
+
+**State at the end of the 2026-10-03 session**
 
 - `guide-evaluation.md`: items 1–20 have a `◆ DECISION`. Item 21 is started but **incomplete**. Item 24 has a proposal waiting for answers (above). Items 22, 23, 25 and 26 are untouched.
 - `guide.md` is untouched and still describes the old setup. `reference.md` has only the §2 edits from item 11. Both now disagree with the decisions in several places, mainly:

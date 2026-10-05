@@ -105,5 +105,22 @@ Each entry has:
   4. **Environment**: run the jobs inside the dev image, as chosen. Sort out file ownership and the non-root user on the runner. Then the optimisations: caching the image's layers between runs, and building the image once and pulling it from a registry. For comparison, try the same job with the platform's own setup steps (the table in item 20).
   5. The e2e job: Compose starting the stack with a production build of the frontend, then the e2e service (item 18).
   6. **GitLab CI**: the same pipeline there, to compare with GitHub Actions.
+  7. **Dependency updates** (added 2026-10-05, from item 24): an update tool that opens pull requests for CI to check. Renovate is the first candidate (Vectoras's preference; it also runs on GitLab, and per its docs, read by Claude on 2026-10-05, it updates pnpm catalogs and can be taught to update versions written elsewhere, such as the Compose build arguments of item 14). Dependabot for comparison (built into GitHub, GitHub only). Work out: how often it runs, how updates are grouped, whether anything merges automatically, and whether it covers every place a version is written (manifests or catalog, `go.mod`, the toolchain versions, the CI workflow itself).
 - **Decide by**: run time with and without cache, how many places a toolchain version is written, whether a CI failure can be reproduced locally, and how much config each option needs.
-- **Affects if changed**: item 14 (version pins), item 5 (what the hook leaves to CI), item 18 (e2e in CI).
+- **Affects if changed**: item 14 (version pins), item 5 (what the hook leaves to CI), item 18 (e2e in CI), item 24 (how updates happen).
+
+## 10. Dependency versions through the package manager's catalog
+
+- **Origin**: `guide-evaluation.md` item 24 (2026-10-05). The repo never used a catalog; each package wrote its own versions.
+- **Current default**: every dependency's exact version is written once in the workspace file's catalog; packages refer to it with `catalog:`; `catalogMode: strict`. For Go modules: `go work sync` after any dependency change.
+- **Not tried by anyone.** The default comes from pnpm's docs, read by Claude on 2026-10-05. The Go part comes from Claude's knowledge, not checked.
+- **What to try**:
+  1. Start a project with every dependency in the catalog, and note how adding one works day to day (does the add command write it to the catalog by itself, and as an exact version?).
+  2. Strict mode: add a dependency with a version other than the catalog's and confirm it is refused. Then type a version into a manifest by hand and see whether anything catches it (the docs don't say).
+  3. A scaffolding tool that writes its own versions into a new package's manifest: how much work is moving them into the catalog?
+  4. Whether editor tooling and the update tool (§9, step 7) cope with versions that live in the workspace file.
+  5. A named catalog, for a case where two versions are needed on purpose.
+  6. **Go side** (no catalog exists there): make two modules require different versions of one dependency, and compare what a build inside the workspace uses with a build of one module alone. Then run `go work sync` and confirm the module files agree. Find a way to make forgetting it visible (a check that fails when the sync would change something).
+  7. **Go tool dependencies** (from item 25): a tool added with `go get -tool` shares the module file with the service, so it can raise the version of a dependency they both use, and `go work sync` can carry that into other modules. After adding or updating a tool, look at what else changed in the module files. If a tool does change a service's versions, try keeping tools in their own module file, and check how that behaves with the workspace file. From Claude's knowledge, not checked.
+- **Decide by**: whether one file of versions is easier to live with than versions in each manifest, and whether strict mode really prevents drift. If it doesn't, compare with a checker that fails when two packages disagree on a version.
+- **Affects if changed**: item 24 (the catalog rule, the `go work sync` rule), item 25 (how Go tools are added), §9 step 7 (what the update tool has to edit).

@@ -20,9 +20,8 @@ Evaluation of `guide.md`, done in isolation (no other project context): what wou
 | ✅ answered | 4, 5, 7, 8, 9, 10, 11, 13, 15, 23, 25 |
 | ⚠️ partial | 2, 3, 6, 12, 14, 17, 22, 24 |
 | ❌ open | 1, 16, 18, 19, 20, 21, 26 (26 added 2026-10-03) |
-| ◆ decided together | 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 (item 2 revised 2026-10-03; still to discuss: 22, 23, 25, 26) |
+| ◆ decided together | 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 23, 24, 25 (item 2 revised 2026-10-03; 23, 24 and 25 decided 2026-10-05; still to discuss: 22, 26) |
 | ◆ started, incomplete | 21 (persistence: to come back to) |
-| In discussion | 24 (proposal made 2026-10-03, no decision yet; see `docs-progress.md`) |
 
 Most ✅ answers live in `reference.md` or in the repo's config files, **not in `guide.md`**. The guide's main gap is that it names tools but leaves out the conventions that connect them.
 
@@ -737,6 +736,37 @@ Most ✅ answers live in `reference.md` or in the repo's config files, **not in 
 > - **`.gitignore`**: `node_modules/`, `.cache/`, build outputs (`dist/`, `.svelte-kit/`, `storybook-static/`, `tmp/`…), `.env*`, logs, editor files (keeps `.vscode/extensions.json`), `.turbo/`, generated types.
 > - Lesson: no leading `./` in patterns, because it matches nothing.
 
+> **◆ DECISION** (2026-10-05)
+>
+> How Prettier and ESLint read these files is from Claude's knowledge, not checked.
+>
+> **Ignore file (`.gitignore`)**
+>
+> - **One file, at the root.** Scaffolding tools create one per package; their entries are merged into the root file and the per-package files deleted.
+>   - Reason: lint and format take their ignores from the root file only (item 9). An entry in a nested file is ignored by git but still linted and formatted.
+> - **Patterns by name, not by path** (`node_modules/`, `dist/`), so they apply in every package. A path anchored with `/` is only for one specific place. Never a leading `./`: it matches nothing.
+> - **What goes in**: dependencies; the cache directory (item 15) and the task runner's cache; build outputs; generated code (item 13); secret files, with the explicit `!.env.example` (item 19); logs; OS and editor files.
+> - **OS and editor files are ignored in the repo**, as a short list, and not left to each developer's global git config, which can't be relied on. Editor settings are ignored except the extension recommendations (item 15).
+> - **Only what the project really produces.** No leftover entries for tools it doesn't use.
+>
+> **Editor config (`.editorconfig`)**
+>
+> - **One file at the root, marked as root.** Its job: the editor writes files the way the formatters will, and it covers files no formatter touches.
+> - **It must agree with the formatters.** Prettier reads this file (indentation, line endings, line length), so it is in effect formatter config. Prettier runs on defaults (item 9), so the values are those defaults: spaces, 2 wide, LF, 80 columns. Go files use tabs, because `gofmt` does.
+> - **It is an input of the format tasks** (item 6's rule for root config): changing it changes the formatter's output.
+>
+> **Line endings (`.gitattributes`)**
+>
+> - **LF on every OS**, set in the repo (`* text=auto eol=lf`), so it doesn't depend on anyone's git settings.
+>   - Reason: the code runs in Linux containers from a bind mount (item 15). Git on Windows often checks files out with Windows line endings (CRLF); the containers would see them as they are, shell scripts would fail there, and the format check would fail on every file.
+>   - With no rule, the repo would work for some developers and break for others.
+>   - LF files are fine in editors on Windows. The exception is a script that Windows itself runs (`.bat`, `.cmd`): if a project has one, it gets its own line (`*.bat text eol=crlf`). Nothing runs on the host here (item 3), so none is expected.
+>   - From Claude's knowledge, not checked. Not tried on Windows by anyone.
+>
+> **Not covered**: a `.dockerignore`. It only matters for images that copy the repo in; dev mounts the repo. It belongs to production builds (section 8, not tried).
+>
+> Guide impact: §2 gains a row for repo hygiene: one root ignore file (also the source of lint and format ignores), an editor config that matches the formatters, LF line endings on every OS.
+
 ### 26. Authentication and sessions (added 2026-10-03, during items 2 and 16; not part of the original evaluation)
 
 > **▶ ANSWER** ❌ open
@@ -754,8 +784,40 @@ Most ✅ answers live in `reference.md` or in the repo's config files, **not in 
 > - The docs say "no version numbers, latest for new projects" plus "one pinned version per runtime". The suggested wording matches that intent.
 > - One extra rule that isn't in the guide: **Prettier is pinned exactly**, because its output changes between versions.
 
+> **◆ DECISION** (2026-10-05)
+>
+> - **Latest stable versions at creation.** The docs carry no version numbers.
+> - **After creation, every dependency is pinned to an exact version.** No ranges, no `latest`. The package manager is set to save exact versions.
+>   - Ranges with the lockfile as the only pin were considered and not chosen: installs would be the same, but the written version would say what is allowed, not what is installed.
+>   - This makes the answer's special rule for Prettier unnecessary (as item 9 already says): everything is pinned exactly.
+> - **The lockfile is committed**, and an install never changes it outside a deliberate update: the install service and CI install from the lockfile as it is, and fail if it doesn't match the manifests.
+> - **One version of each dependency across the workspace, through the package manager's catalog** (pnpm catalogs):
+>   - The version is written once, in the workspace file. Each package's manifest refers to it (`catalog:`) and holds no version number.
+>   - **Every dependency goes through the catalog**, not only the shared ones, so there is one rule and one file of versions.
+>   - **`catalogMode: strict`**, so adding a dependency with a version other than the catalog's is refused. Without it, a catalog is only a convenience and packages can still drift.
+>   - A named catalog is the way to keep two versions of a dependency on purpose. It needs a reason.
+>   - The catalog covers direct dependencies only. Versions pulled in by libraries are left to the package manager, and are the lockfile's business.
+>   - **Not tried by anyone.** From pnpm's docs, read by Claude on 2026-10-05. See `to-explore.md` §10.
+> - **Go** (corrected 2026-10-05; from Claude's knowledge of Go, not checked, tried by no one):
+>   - **Nothing extra for exact versions and the lockfile.** The module file has no ranges: each requirement names one version. The checksum file is committed. A build never changes the module file by itself; it fails instead.
+>   - **One version across modules is not automatic.** Each module has its own module file, and two modules can require different versions of the same dependency. Inside the workspace (item 4) Go hides this by building everything with the highest version any module asks for. A build of one module outside the workspace (a production image, for example) uses that module's own file, so dev and production could differ.
+>   - **Rule: after any dependency change, run `go work sync`**, which writes the workspace's chosen versions back into every module file. See `to-explore.md` §10.
+> - **Updates are deliberate**: their own change, never mixed with other work, and checked by CI (item 20).
+>   - **Open**: how often, and with which tool. Renovate is the first candidate, Dependabot the comparison. See `to-explore.md` §9, step 7.
+> - Toolchain versions (runtimes, package manager, linters installed in the image) follow the same idea, and are item 14.
+> - Guide impact: §0 says "latest stable at creation, then pinned to exact versions; updates are deliberate". §1 gains a row: dependency versions → written once in the workspace catalog, strict mode.
+
 ### 25. Section 5: "`go get -tool`" next to "golangci-lint not via `go install`": a one-line reason would help.
 
 > **▶ ANSWER** ✅ answered · Where: `reference.md` §1, §2 (roads not taken)
 >
 > golangci-lint's own docs discourage `go install`/tool installs: the result is built with whatever Go is local, not the tested artifact. So use the official install script with a pinned version. Other Go dev tools (wgo, tygo) use `go get -tool`; these are per module and don't resolve across `go.work`.
+
+> **◆ DECISION** (2026-10-05)
+>
+> - **Default: a Go dev tool is added as a tool dependency** (`go get -tool`) of the module that runs it. Its exact version is then recorded in that module's file, like any other dependency (item 24).
+> - **Tools are per module.** The workspace file doesn't share them, so a tool is declared in every module that runs it.
+> - **Exception: when a tool's own docs say to use its released binary, the dev image installs that binary** at an exact version, passed as a build argument (item 14). The Go linter is that case today.
+>   - Its docs, read by Claude on 2026-10-05, recommend binary installation and say installs through `go install`, `go get` or the `tool` directive "aren't guaranteed to work". Main reasons given: the linter is then compiled with the local Go version and not the one it was tested with; as a tool dependency it can interfere with the project's own dependencies; compiling it is slower.
+> - **Tools are not isolated from the service's dependencies.** A tool shares the module file, so it can raise the version of a dependency the service also uses. Accepted for small tools. Keeping tools in their own module file was considered and not chosen for now; see `to-explore.md` §10, step 7. From Claude's knowledge, not checked.
+> - Guide impact: §5's "Linter install" row gets the reason in a few words: "released binary in the dev image; its authors don't support building it from source". The "Pinned dev tools" row stays.
