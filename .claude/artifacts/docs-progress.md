@@ -142,6 +142,33 @@ Tracks the documentation phase: turning what was learned in this repo into Vecto
 3. Apply the decisions to `guide.md` and `reference.md` (each decision has a "Guide impact" line).
 4. The open items from 2026-09-30: "Why Go" reasoning, where "Lessons (not yet placed)" goes, the two small offers.
 
+## Session (2026-10-06) — items 21, 22, 26 deferred; the evaluation is closed
+
+- [x] **Items 21 (rest of persistence), 22 (logging, error response shape) and 26 (authentication and sessions) deferred**, at Vectoras's request: not enough hands-on experience to decide them. No decision is forced.
+  - Each got a `◆ DEFERRED` block in `guide-evaluation.md` (a new marker, explained in "How to read this file").
+  - Moved to `to-explore.md` as **§11, §12, §13** (written by Claude; the "what to try" lists are Claude's suggestions, not checked).
+  - What stays decided: PostgreSQL in its own Compose service with a named volume (item 21); config loading (item 19); the session shape from item 2 (item 26).
+  - In the guide and reference these topics will read "not decided, chosen per project".
+- **`guide-evaluation.md` is closed**: every item is either decided or deferred.
+
+- [x] **Decisions applied to `guide.md` and `reference.md`**, by Claude alone at Vectoras's request. **Not yet reviewed by Vectoras.** Both files were rewritten in full from the `◆ DECISION` and `◆ DEFERRED` blocks; text that no decision touched was kept as it was.
+  - **`guide.md`**: still "purpose → technology" tables, now with the conventions that connect the tools (layout, script names, task rules, hooks, repo hygiene, env vars). New §9 for CI and a closing "Not decided" list.
+  - **`reference.md`**: same sections plus §9 (CI). Each decision's reasoning went into its section; what was dropped moved to "roads not taken" with the lessons it taught (the `development` export condition and built packages, CORS and the proxy, a root `main.go`, tests on pre-push).
+  - **Marks** used in both: _(not tried)_, _(checked by Claude)_, _(from Claude's knowledge, not checked)_, **Not decided**.
+  - **Choices Claude made while writing, to check in the review**:
+    1. A new **§9 "Continuous integration"** in both files (item 20 left the place open: own section or §2).
+    2. Where things went: env vars and secrets in §3; "calling the API", adapter, rendering and the session shape in §4; persistence, config and "keeping the API private" in §5; Zod and the API client in §6.
+    3. **The shared UI package no longer lists `@sveltejs/package` and publint** as required. Claude's reading of item 12 (shared packages aren't built): they only matter if the package is published outside the repo. Not discussed with Vectoras.
+    4. The guide ends with a **"Not decided" list**, so a reader knows what the guide leaves to the project.
+    5. The reference names no tool versions (e.g. the Lefthook version Claude checked against), and the example endpoint in the API client is generic.
+    6. Left untouched: the "Why Go" placeholders, the "Lessons (not yet placed)" section (one bullet annotated), "since Go 1.22", `technologies.md` and the two outlines.
+
+**Next** (replaces the lists below):
+
+1. **Vectoras reviews `guide.md` and `reference.md`**, starting with the six choices above.
+2. The open items from 2026-09-30: "Why Go" reasoning, where "Lessons (not yet placed)" goes, the two small offers.
+3. Later, in a future project: `to-explore.md` (13 entries, 12 open; §8 first).
+
 **State at the end of the 2026-10-03 session**
 
 - `guide-evaluation.md`: items 1–20 have a `◆ DECISION`. Item 21 is started but **incomplete**. Item 24 has a proposal waiting for answers (above). Items 22, 23, 25 and 26 are untouched.

@@ -124,3 +124,41 @@ Each entry has:
   7. **Go tool dependencies** (from item 25): a tool added with `go get -tool` shares the module file with the service, so it can raise the version of a dependency they both use, and `go work sync` can carry that into other modules. After adding or updating a tool, look at what else changed in the module files. If a tool does change a service's versions, try keeping tools in their own module file, and check how that behaves with the workspace file. From Claude's knowledge, not checked.
 - **Decide by**: whether one file of versions is easier to live with than versions in each manifest, and whether strict mode really prevents drift. If it doesn't, compare with a checker that fails when two packages disagree on a version.
 - **Affects if changed**: item 24 (the catalog rule, the `go work sync` rule), item 25 (how Go tools are added), §9 step 7 (what the update tool has to edit).
+
+## 11. Persistence: everything beyond "PostgreSQL in its own service"
+
+- **Origin**: `guide-evaluation.md` item 21 (started 2026-10-03, deferred 2026-10-06). Persistence was dropped from the exploration, so nothing here was tried by anyone.
+- **Current default**: PostgreSQL, as its own Compose service in dev, with a named volume. Everything else is chosen per project.
+- **What to try** (the item's "Still to decide" list; the suggestions there are Claude's, not adopted):
+  1. A migration tool: `goose` (Vectoras's leaning) on a real schema, with `golang-migrate` as the comparison.
+  2. The migration practices listed in item 21, to see which ones earn their place.
+  3. A query layer: a driver plus typed code generated from hand-written SQL, compared with the plain driver and with an ORM.
+  4. How migrations run in dev, and how they would run before a new version starts in production.
+  5. Whether database rows and API types stay separate.
+  6. Tests that touch the database, and seed data for dev and e2e.
+  7. Connection settings, and where the database is hosted in production.
+- **Decide by**: how much SQL is written by hand vs. generated, how a schema change travels from dev to production, and how hard a mistake in a migration is to undo.
+- **Affects if decided**: item 21, item 17 (a second binary for migrations), item 19 (connection secrets), item 20 (a database in CI).
+
+## 12. Backend conventions: logging and error response shape
+
+- **Origin**: `guide-evaluation.md` item 22 (deferred 2026-10-06). The repo used the router's request logger and the API framework's built-in error responses; neither was a choice.
+- **Current default**: none. Chosen per project. Config loading is settled (item 19).
+- **What to try** (Claude's suggestions, from its own knowledge, not checked):
+  1. Structured logging with the standard library's `slog`: one logger created at startup and passed explicitly, a request id on every line, levels set by an env var.
+  2. The API framework's built-in error responses as they are, then a custom shape. See what the frontend's `ApiError` (item 2) needs from either.
+  3. The two things the repo left out: recovering from panics, and timeouts on the HTTP server.
+- **Decide by**: whether a failed request can be followed through the logs, and whether the frontend can show a useful message without knowing the API's internals.
+- **Affects if decided**: item 22, item 2 (the typed `ApiError` and the Zod schemas for error bodies).
+
+## 13. Authentication and sessions
+
+- **Origin**: `guide-evaluation.md` item 26 (added 2026-10-03, deferred 2026-10-06). Never covered anywhere.
+- **Current default**: only the shape from item 2: the frontend's server holds the session and passes the user's identity to the API with each call. Everything else is chosen per project.
+- **What to try**:
+  1. How users sign in (own passwords, an external identity provider, or a library that handles both).
+  2. Where sessions are stored (a cookie holding everything, or a session id with the data kept server-side).
+  3. What the API receives as the user's identity, and how it knows the frontend's server sent it.
+  4. Authorisation: where the "may this user do this?" checks live.
+- **Decide by**: how much security-critical code is hand-written, and whether the API stays unreachable from the browser (item 2).
+- **Affects if decided**: item 26, item 2 (private API, live-update tickets), item 21 (users and sessions in the database), item 19 (secrets).

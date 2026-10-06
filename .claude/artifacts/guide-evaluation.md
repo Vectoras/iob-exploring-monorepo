@@ -12,6 +12,7 @@ Evaluation of `guide.md`, done in isolation (no other project context): what wou
   - ❌ **open**: never decided, or explicitly out of scope.
 - **Where** says where the answer lives: `reference.md` means it's already in the docs. A repo file or `PROGRESS.md` means the guide/reference doesn't carry it yet.
 - The block starting **◆ DECISION** was added last, after Vectoras and Claude discussed the item. It overrides the answer where they differ, and it's what should go into the guide/reference.
+- A block starting **◆ DEFERRED** means no decision was made: Vectoras doesn't have the hands-on experience for it yet. The item moved to `to-explore.md`, and the guide/reference say the topic is not decided.
 
 ## Summary
 
@@ -20,8 +21,8 @@ Evaluation of `guide.md`, done in isolation (no other project context): what wou
 | ✅ answered | 4, 5, 7, 8, 9, 10, 11, 13, 15, 23, 25 |
 | ⚠️ partial | 2, 3, 6, 12, 14, 17, 22, 24 |
 | ❌ open | 1, 16, 18, 19, 20, 21, 26 (26 added 2026-10-03) |
-| ◆ decided together | 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 23, 24, 25 (item 2 revised 2026-10-03; 23, 24 and 25 decided 2026-10-05; still to discuss: 22, 26) |
-| ◆ started, incomplete | 21 (persistence: to come back to) |
+| ◆ decided together | 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 23, 24, 25 (item 2 revised 2026-10-03; 23, 24 and 25 decided 2026-10-05) |
+| ◆ deferred (2026-10-06) | 21 (partly decided), 22, 26: not enough hands-on experience to decide; moved to `to-explore.md` §11, §12, §13 |
 
 Most ✅ answers live in `reference.md` or in the repo's config files, **not in `guide.md`**. The guide's main gap is that it names tools but leaves out the conventions that connect them.
 
@@ -679,7 +680,9 @@ Most ✅ answers live in `reference.md` or in the repo's config files, **not in 
 >
 > Explicitly dropped from this project ("decided against, full stop"). The guide should either say "not covered" or leave persistence for a later doc.
 
-> **◆ DECISION** (2026-10-03) — **INCOMPLETE, to come back to.** Persistence is in scope. Only the points under "Decided" are settled; nothing here was tried.
+> **◆ DECISION** (2026-10-03) — **INCOMPLETE.** Persistence is in scope. Only the points under "Decided" are settled; nothing here was tried.
+>
+> **◆ DEFERRED** (2026-10-06): the "Still to decide" list is not decided here. Vectoras doesn't have the experience to choose yet; it moved to `to-explore.md` §11. The migration practices and the suggestions in brackets stay as Claude's notes, not adopted.
 >
 > **Decided**
 > - **PostgreSQL.**
@@ -710,7 +713,7 @@ Most ✅ answers live in `reference.md` or in the repo's config files, **not in 
 > 8. Connection settings (one connection-string secret per app).
 > 9. Production hosting (open, like the API's host in item 16).
 >
-> **Guide impact**: none until the item is completed. Then a persistence block: database, dev service and volume, migration tool, query layer.
+> **Guide impact** (changed 2026-10-06): a short persistence block with only what is decided (PostgreSQL, its own dev service, a named volume), and the rest marked "not decided, chosen per project".
 
 ### 22. Backend conventions: logging (`slog`?), config loading, error response shape.
 
@@ -726,6 +729,12 @@ Most ✅ answers live in `reference.md` or in the repo's config files, **not in 
 >   - middleware before the adapter
 >   - `CreateHooks = nil` to drop the `$schema` link
 > - **Not done**: `Recoverer` middleware and `http.Server` timeouts.
+
+> **◆ DEFERRED** (2026-10-06)
+>
+> Logging and the error response shape are not decided: Vectoras doesn't have the experience to choose yet. Moved to `to-explore.md` §12. Config loading is the one part that is settled (item 19).
+>
+> Guide impact: §5 says logging and the error response shape are not decided and are chosen per project.
 
 ### 23. `.gitignore` / `.editorconfig` conventions.
 
@@ -774,6 +783,12 @@ Most ✅ answers live in `reference.md` or in the repo's config files, **not in 
 > Never covered: not in the repo, the guide or the reference. The only thing settled is the shape that item 2 implies: the frontend's server holds the session and passes the user's identity to the API with each call, so credentials never reach the browser.
 >
 > Still to decide: how users sign in, where sessions are stored, what the API receives as the user's identity and how it trusts it, and authorisation.
+
+> **◆ DEFERRED** (2026-10-06)
+>
+> Not decided: Vectoras doesn't have the experience to choose yet. Moved to `to-explore.md` §13. The shape from item 2 stays.
+>
+> Guide impact: one line with the shape (the frontend's server holds the session and passes the user's identity to the API), and the rest marked "not decided".
 
 ## Minor
 
