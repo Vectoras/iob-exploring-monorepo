@@ -52,4 +52,4 @@ This repo is a learning exercise, not a production project.
 
 - `.claude/monorepo_concepts.md` — background concepts behind the practice.
 - `.claude/docker-dev-containers.md` — reusable reference for the Docker dev-container setup (base image choice, caching strategy, common gotchas).
-- `PROGRESS.md` — detailed, chronological progress/decisions log for this repo.
+- `.claude/PROGRESS.md` — detailed, chronological progress/decisions log for this repo.
