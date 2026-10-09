@@ -15,7 +15,6 @@ x-service-defaults: &service-defaults
       <<: *versions-args
   environment:
     - NODE_ENV=development
-    - CI=true
   working_dir: /monorepo
   volumes:
     - ./:/monorepo
@@ -24,9 +23,19 @@ x-service-defaults: &service-defaults
       condition: service_completed_successfully
 
 services:
+
+  workspace:
+    <<: *service-defaults
+    depends_on: {}
+    init: true
+    command: ["sleep", "infinity"]
+
   install:
     <<: *service-defaults
     depends_on: {}
+    environment:
+      - NODE_ENV=development
+      - CI=true
     command: ["sh", "-c", "pnpm install"]
 
   api_go:
