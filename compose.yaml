@@ -23,7 +23,6 @@ x-service-defaults: &service-defaults
       condition: service_completed_successfully
 
 services:
-
   workspace:
     <<: *service-defaults
     depends_on: {}
