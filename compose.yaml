@@ -8,6 +8,7 @@ x-versions-args: &versions-args
   CACHE_DIR: /monorepo/.cache
 
 x-service-defaults: &service-defaults
+  init: true
   build:
     context: ./
     dockerfile: ./Dockerfile
@@ -26,7 +27,6 @@ services:
   workspace:
     <<: *service-defaults
     depends_on: {}
-    init: true
     command: ["sleep", "infinity"]
 
   install:
