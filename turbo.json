@@ -19,6 +19,16 @@
       "cache": false,
       "persistent": true
     },
+    "dev:lean": {
+      "dependsOn": ["^build"],
+      "cache": false,
+      "persistent": true
+    },
+    "dev:debug": {
+      "dependsOn": ["^build"],
+      "cache": false,
+      "persistent": true
+    },
     "check": {
       "dependsOn": ["^build"]
     },

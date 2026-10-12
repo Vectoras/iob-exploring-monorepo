@@ -1,0 +1,27 @@
+# Full mode: every dev service runs its `dev:debug` script.
+# Start with: docker compose -f compose.yaml -f compose.full.yaml up -d
+# Back to lean: docker compose up -d
+
+services:
+  api_go:
+    command:
+      [
+        "sh",
+        "-c",
+        "pnpm turbo --filter @iob-exploring-monorepo/api-go-name-generator dev:debug",
+      ]
+    # Uncomment if Delve cannot start the server without it.
+    # cap_add:
+    #   - SYS_PTRACE
+
+  api_ts:
+    command:
+      [
+        "sh",
+        "-c",
+        "pnpm turbo --filter @iob-exploring-monorepo/api-ts-name-generator dev:debug",
+      ]
+
+  web:
+    command:
+      ["sh", "-c", "pnpm turbo --filter @iob-exploring-monorepo/web dev:debug"]

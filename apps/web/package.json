@@ -4,7 +4,8 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "dev": "NODE_OPTIONS='--inspect=0.0.0.0:9229' vite dev",
+    "dev:lean": "vite dev",
+    "dev:debug": "NODE_OPTIONS='--inspect=0.0.0.0:9229' vite dev",
     "build": "vite build",
     "preview": "vite preview",
     "prepare": "svelte-kit sync || echo ''",

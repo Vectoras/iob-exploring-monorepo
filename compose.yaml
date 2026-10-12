@@ -35,7 +35,7 @@ services:
     environment:
       - NODE_ENV=development
       - CI=true
-    command: ["sh", "-c", "pnpm install"]
+    command: ["sh", "-c", "pnpm install && go install tool"]
 
   api_go:
     <<: *service-defaults
@@ -45,7 +45,7 @@ services:
       [
         "sh",
         "-c",
-        "pnpm turbo --filter @iob-exploring-monorepo/api-go-name-generator dev",
+        "pnpm turbo --filter @iob-exploring-monorepo/api-go-name-generator dev:lean",
       ]
 
   api_ts:
@@ -56,11 +56,12 @@ services:
       [
         "sh",
         "-c",
-        "pnpm turbo --filter @iob-exploring-monorepo/api-ts-name-generator dev",
+        "pnpm turbo --filter @iob-exploring-monorepo/api-ts-name-generator dev:lean",
       ]
 
   web:
     <<: *service-defaults
     ports:
       - "5173:5173"
-    command: ["sh", "-c", "pnpm turbo --filter @iob-exploring-monorepo/web dev"]
+    command:
+      ["sh", "-c", "pnpm turbo --filter @iob-exploring-monorepo/web dev:lean"]
