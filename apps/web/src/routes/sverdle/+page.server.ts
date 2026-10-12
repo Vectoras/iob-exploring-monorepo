@@ -5,6 +5,9 @@ import { Game } from "./game.ts";
 export const load = (({ cookies }) => {
   const game = new Game(cookies.get("sverdle"));
 
+  const test = "JBD test";
+  console.log(test);
+
   return {
     /**
      * The player's guessed words so far

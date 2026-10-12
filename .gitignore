@@ -23,9 +23,12 @@ pnpm-debug.log*
 
 # Editor/OS cruft
 .DS_Store
-.vscode/*
-!.vscode/extensions.json
 .idea/
+**/.vscode/*
+!**/.vscode/extensions.json
+!**/.vscode/launch.json
+!**/.vscode/tasks.json
+!**/.vscode/settings.json
 
 # Turbo
 .turbo/
