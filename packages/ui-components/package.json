@@ -32,11 +32,11 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
+      "types": "./src/lib/index.ts",
       "development": "./src/lib/index.ts",
       "svelte": "./dist/index.js"
     },
-    "./theme.css": "./dist/theme.css"
+    "./theme.css": "./src/lib/theme.css"
   },
   "peerDependencies": {
     "svelte": "^5.0.0"
