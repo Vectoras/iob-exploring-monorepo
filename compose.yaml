@@ -4,9 +4,9 @@ name: exploring_monorepo
 #
 # These names are a contract: do not rename or remove one without changing every
 # reader in the same commit. A new one is added here first, with its readers.
-#   NODE_VERSION      all.Dockerfile
-#   OS_RELEASE        all.Dockerfile, go.Dockerfile
-#   PNPM_VERSION      all.Dockerfile
+#   NODE_VERSION      all.Dockerfile, node.Dockerfile
+#   OS_RELEASE        all.Dockerfile, go.Dockerfile, node.Dockerfile
+#   PNPM_VERSION      all.Dockerfile, node.Dockerfile
 #   GO_VERSION        all.Dockerfile, go.Dockerfile, scripts/update-go-version.sh (reads this file)
 #   GOLANGCI_VERSION  all.Dockerfile
 #   CACHE_DIR         all.Dockerfile, go.Dockerfile
@@ -94,26 +94,20 @@ services:
 
   api_ts:
     <<: *service-defaults
-    working_dir: /monorepo
+    working_dir: /monorepo/apps/api-ts-name-generator
     build:
-      dockerfile: ./all.Dockerfile
+      dockerfile: ./node.Dockerfile
       <<: *build-defaults
     ports:
       - "3001:3001"
-    command:
-      [
-        "sh",
-        "-c",
-        "pnpm turbo --filter @iob-exploring-monorepo/api-ts-name-generator dev:lean",
-      ]
+    command: ["pnpm", "run", "dev:lean"]
 
   web:
     <<: *service-defaults
-    working_dir: /monorepo
+    working_dir: /monorepo/apps/web
     build:
-      dockerfile: ./all.Dockerfile
+      dockerfile: ./node.Dockerfile
       <<: *build-defaults
     ports:
       - "5173:5173"
-    command:
-      ["sh", "-c", "pnpm turbo --filter @iob-exploring-monorepo/web dev:lean"]
+    command: ["pnpm", "run", "dev:lean"]

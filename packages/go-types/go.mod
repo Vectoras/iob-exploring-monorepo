@@ -3,9 +3,7 @@ module github.com/Vectoras/iob-exploring-monorepo/packages/go-types
 go 1.27.2
 
 require (
-	github.com/bokwoon95/wgo v0.7.1 // indirect
 	github.com/fatih/structtag v1.2.0 // indirect
-	github.com/fsnotify/fsnotify v1.10.1 // indirect
 	github.com/gzuidhof/tygo v0.2.21 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/spf13/cobra v1.3.0 // indirect
@@ -17,7 +15,4 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
 
-tool (
-	github.com/bokwoon95/wgo
-	github.com/gzuidhof/tygo
-)
+tool github.com/gzuidhof/tygo
