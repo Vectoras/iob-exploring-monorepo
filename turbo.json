@@ -1,7 +1,10 @@
 {
   "$schema": "https://v2-11-2.turborepo.dev/schema.json",
-  "globalPassThroughEnv": ["GOPATH", "GOCACHE"],
+  "globalPassThroughEnv": ["GOPATH", "GOCACHE", "GOTOOLCHAIN"],
   "tasks": {
+    "generate": {
+      "outputs": ["ts/generated/**"]
+    },
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]

@@ -25,8 +25,8 @@ x-service-defaults: &service-defaults
   volumes:
     - ./:/monorepo
   depends_on:
-    install:
-      condition: service_completed_successfully
+    maintenance:
+      condition: service_healthy
 
 x-build-defaults: &build-defaults
   context: ./
@@ -43,7 +43,12 @@ services:
     depends_on: {}
     command: ["sleep", "infinity"]
 
-  install:
+  # Prepares what the other services need, then keeps it up to date:
+  #   1. installs the dependencies and builds the Go tools
+  #   2. generates code once (every package with a `generate` script)
+  #   3. marks itself ready: the app services wait for this (see the healthcheck)
+  #   4. stays alive, regenerating when a package with a `generate` script changes
+  maintenance:
     <<: *service-defaults
     working_dir: /monorepo
     build:
@@ -53,7 +58,22 @@ services:
     environment:
       - NODE_ENV=development
       - CI=true
-    command: ["sh", "-c", "pnpm install && go install tool"]
+    # The marker is removed first: a container that is stopped and started keeps its
+    # files, and must not look ready before the steps above have run again.
+    command:
+      [
+        "sh",
+        "-c",
+        "rm -f /tmp/ready && pnpm install && go install tool && pnpm turbo run generate && touch /tmp/ready && exec pnpm turbo watch generate",
+      ]
+    # Healthy once the marker exists. Checked every second while starting, so the
+    # app services start as soon as step 3 is reached.
+    healthcheck:
+      test: ["CMD", "test", "-f", "/tmp/ready"]
+      start_period: 5m
+      start_interval: 1s
+      interval: 30s
+      timeout: 2s
 
   api_go:
     <<: *service-defaults

@@ -20,7 +20,7 @@
   "exports": {
     ".": {
       "development": "./ts/generated/index.ts",
-      "types": "./ts/dist/index.d.ts",
+      "types": "./ts/generated/index.ts",
       "default": "./ts/dist/index.js"
     }
   },
