@@ -21,13 +21,13 @@
   "license": "ISC",
   "dependencies": {
     "@fastify/cors": "^11.3.0",
-    "fastify": "^5.12.3",
-    "@iob-exploring-monorepo/ts-types": "workspace:*",
     "@iob-exploring-monorepo/go-types": "workspace:*",
+    "@iob-exploring-monorepo/ts-types": "workspace:*",
+    "fastify": "^5.12.3",
     "unique-names-generator": "^4.7.1"
   },
   "devDependencies": {
-    "@types/node": "^26.4.1",
+    "@types/node": "^24.13.4",
     "tsx": "^4.23.13",
     "typescript": "^6.0.3"
   }

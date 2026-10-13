@@ -1,14 +1,16 @@
-# Full mode: every dev service runs its `dev:debug` script.
+# Full mode: every dev service runs with its debugger on.
+# Node apps run their `dev:debug` script; the Go app runs its debug command directly.
 # Start with: docker compose -f compose.yaml -f compose.full.yaml up -d
 # Back to lean: docker compose up -d
 
 services:
   api_go:
+    # -xdir tmp: see compose.yaml.
     command:
       [
         "sh",
         "-c",
-        "pnpm turbo --filter @iob-exploring-monorepo/api-go-name-generator dev:debug",
+        "go tool wgo -xdir tmp go build -gcflags='all=-N -l' -o ./tmp/server . :: go tool dlv exec ./tmp/server --headless --listen=:2345 --api-version=2 --accept-multiclient --continue",
       ]
     # Uncomment if Delve cannot start the server without it.
     # cap_add:

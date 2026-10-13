@@ -1,36 +1,54 @@
 name: exploring_monorepo
 
+# The source of truth for every toolchain version. Exact versions only.
+#
+# These names are a contract: do not rename or remove one without changing every
+# reader in the same commit. A new one is added here first, with its readers.
+#   NODE_VERSION      all.Dockerfile
+#   OS_RELEASE        all.Dockerfile, go.Dockerfile
+#   PNPM_VERSION      all.Dockerfile
+#   GO_VERSION        all.Dockerfile, go.Dockerfile, scripts/update-go-version.sh (reads this file)
+#   GOLANGCI_VERSION  all.Dockerfile
+#   CACHE_DIR         all.Dockerfile, go.Dockerfile
 x-versions-args: &versions-args
-  NODE_VERSION: 24
+  NODE_VERSION: 24.21.0
+  OS_RELEASE: trixie
   PNPM_VERSION: 11.25.0
-  GO_VERSION: 1.27.1
+  GO_VERSION: 1.27.2
   GOLANGCI_VERSION: 2.14.0
   CACHE_DIR: /monorepo/.cache
 
 x-service-defaults: &service-defaults
   init: true
-  build:
-    context: ./
-    dockerfile: ./Dockerfile
-    args:
-      <<: *versions-args
   environment:
     - NODE_ENV=development
-  working_dir: /monorepo
   volumes:
     - ./:/monorepo
   depends_on:
     install:
       condition: service_completed_successfully
 
+x-build-defaults: &build-defaults
+  context: ./
+  args:
+    <<: *versions-args
+
 services:
   workspace:
     <<: *service-defaults
+    working_dir: /monorepo
+    build:
+      dockerfile: ./all.Dockerfile
+      <<: *build-defaults
     depends_on: {}
     command: ["sleep", "infinity"]
 
   install:
     <<: *service-defaults
+    working_dir: /monorepo
+    build:
+      dockerfile: ./all.Dockerfile
+      <<: *build-defaults
     depends_on: {}
     environment:
       - NODE_ENV=development
@@ -39,17 +57,27 @@ services:
 
   api_go:
     <<: *service-defaults
+    working_dir: /monorepo/apps/api-go-name-generator
+    build:
+      dockerfile: ./go.Dockerfile
+      <<: *build-defaults
     ports:
       - "3006:3006"
+    # -xdir tmp: the build writes into tmp/, inside the watched folder. Without the
+    # exclusion the build would trigger the watcher and the server would start twice.
     command:
       [
         "sh",
         "-c",
-        "pnpm turbo --filter @iob-exploring-monorepo/api-go-name-generator dev:lean",
+        "go tool wgo -xdir tmp go build -o ./tmp/server . :: ./tmp/server",
       ]
 
   api_ts:
     <<: *service-defaults
+    working_dir: /monorepo
+    build:
+      dockerfile: ./all.Dockerfile
+      <<: *build-defaults
     ports:
       - "3001:3001"
     command:
@@ -61,6 +89,10 @@ services:
 
   web:
     <<: *service-defaults
+    working_dir: /monorepo
+    build:
+      dockerfile: ./all.Dockerfile
+      <<: *build-defaults
     ports:
       - "5173:5173"
     command:
