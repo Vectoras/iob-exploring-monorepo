@@ -46,3 +46,6 @@ pre-push:
     # turbo only sees packages; this covers files at the repo root.
     format-root:
       run: pnpm run format:root:check
+    # Every Go module builds the same alone as in go.work (changes nothing; fails on a drift).
+    go-sync:
+      run: ./scripts/check-go-sync.sh

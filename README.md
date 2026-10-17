@@ -78,10 +78,20 @@ Add or upgrade a tool inside `workspace`, then restart `maintenance`:
 
 ```bash
 GOWORK=off go -C tools get -tool <module path>@<version>
+GOWORK=off go -C tools mod tidy      # get -tool doesn't tidy
 docker compose restart maintenance   # on the host
 ```
 
 `GOWORK=off` is needed for every command in `tools/`: with the workspace on, Go works on the workspace's modules instead.
+
+### Go modules in sync
+
+Inside `go.work`, Go builds every module with the highest version any module asks for; a module built on its own (a production image) uses only its own `go.mod`. `./scripts/check-go-sync.sh` reports any module that would build differently on its own, and how to fix it. It changes nothing, and runs in the pre-push hook, which it fails on a difference. The fix, inside `workspace`:
+
+```bash
+go work sync                                  # writes the workspace's versions into every go.mod
+GOWORK=off go -C <module folder> mod tidy     # in each module it reported: go work sync doesn't write go.sum
+```
 
 ### Tool versions
 
