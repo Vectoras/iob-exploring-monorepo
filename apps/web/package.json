@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev:lean": "vite dev",
-    "dev:debug": "NODE_OPTIONS='--inspect=0.0.0.0:9229' vite dev",
+    "dev:full": "NODE_OPTIONS='--inspect=0' vite dev",
     "build": "vite build",
     "preview": "vite preview",
     "prepare": "svelte-kit sync || echo ''",

@@ -34,6 +34,11 @@ x-build-defaults: &build-defaults
     <<: *versions-args
 
 services:
+  # --- working services ---------------
+
+  # Where the work is done: the editor attaches here, and git, the hooks, manual turbo
+  # runs and the debuggers' clients all run here. Has every toolchain, runs nothing,
+  # and waits for nothing, so it can be used even when `maintenance` fails.
   workspace:
     <<: *service-defaults
     working_dir: /monorepo
@@ -75,6 +80,23 @@ services:
       interval: 30s
       timeout: 2s
 
+  # --- app services --------------------
+
+  # Every app service calls its program directly, with no wrapper process kept alive
+  # (no shell, no `go tool`, no `pnpm run`). wgo comes from $GOPATH/bin, filled by
+  # `maintenance` (`go install tool`); the Node programs from the app's node_modules/.bin.
+  # -xdir tmp: the build writes into tmp/, inside the watched folder. Without the
+  # exclusion the build would trigger the watcher and the server would start twice.
+  #
+  # KEEP IN STEP: each app's command here is also written as the `dev:lean` script in
+  # the app's package.json (and its full-mode command, in compose.full.yaml, as
+  # `dev:full`). Those scripts are for running the repo on the host without Docker
+  # (`pnpm dev:lean` at the root). Whenever a command changes in one place, change it
+  # in the other in the same commit. Two intended differences:
+  #   - the scripts call Go tools through `go tool`: a host may not have $GOPATH/bin on PATH
+  #   - in `dev:full`, the debuggers listen on 127.0.0.1 only, and the Node apps on a random
+  #     port (`--inspect=0`): on one host, a fixed port would clash between the two Node apps,
+  #     and 0.0.0.0 would open the debuggers to the local network
   api_go:
     <<: *service-defaults
     working_dir: /monorepo/apps/api-go-name-generator
@@ -83,13 +105,18 @@ services:
       <<: *build-defaults
     ports:
       - "3006:3006"
-    # -xdir tmp: the build writes into tmp/, inside the watched folder. Without the
-    # exclusion the build would trigger the watcher and the server would start twice.
     command:
       [
-        "sh",
-        "-c",
-        "go tool wgo -xdir tmp go build -o ./tmp/server . :: ./tmp/server",
+        "wgo",
+        "-xdir",
+        "tmp",
+        "go",
+        "build",
+        "-o",
+        "./tmp/server",
+        ".",
+        "::",
+        "./tmp/server",
       ]
 
   api_ts:
@@ -100,7 +127,7 @@ services:
       <<: *build-defaults
     ports:
       - "3001:3001"
-    command: ["pnpm", "run", "dev:lean"]
+    command: ["./node_modules/.bin/tsx", "watch", "src/index.ts"]
 
   web:
     <<: *service-defaults
@@ -110,4 +137,4 @@ services:
       <<: *build-defaults
     ports:
       - "5173:5173"
-    command: ["pnpm", "run", "dev:lean"]
+    command: ["./node_modules/.bin/vite", "dev"]

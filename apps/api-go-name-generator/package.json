@@ -4,6 +4,8 @@
   "version": "0.0.1",
   "description": "Simple Go API that returns a random username and id",
   "scripts": {
+    "dev:lean": "go tool wgo -xdir tmp go build -o ./tmp/server . :: ./tmp/server",
+    "dev:full": "go tool wgo -xdir tmp go build -gcflags='all=-N -l' -o ./tmp/server . :: go tool dlv exec ./tmp/server --headless --listen=127.0.0.1:2345 --api-version=2 --accept-multiclient --continue",
     "build": "go build -o ./dist/server .",
     "start": "./dist/server",
     "lint": "golangci-lint run --fix ./...",

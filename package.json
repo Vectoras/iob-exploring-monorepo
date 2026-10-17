@@ -5,6 +5,8 @@
   "description": "Understanding monorepos with pnpm and turborepo",
   "main": "index.js",
   "scripts": {
+    "dev:lean": "turbo watch generate dev:lean",
+    "dev:full": "turbo watch generate dev:full",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "turbo run lint",
     "lint:check": "turbo run lint:check",

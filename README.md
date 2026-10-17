@@ -23,13 +23,15 @@ All workspace packages are scoped under `@iob-exploring-monorepo/*`.
 - Docker + Docker Compose. Nothing else: Node, pnpm and Go live in the images, and development happens inside the containers.
 - An editor that can attach to a running container (e.g. VS Code's "Attach to Running Container").
 
+Only want to try it, without Docker? See [Quick run without Docker](#quick-run-without-docker).
+
 ## Getting started
 
 ```bash
 docker compose up -d
 ```
 
-This builds the images and starts every service. There is no host workflow: dependencies are installed, and every command is run, inside a container.
+This builds the images and starts every service. Development happens only inside the containers: dependencies are installed, and every command is run, there.
 
 ### Services
 
@@ -43,7 +45,7 @@ This builds the images and starts every service. There is no host workflow: depe
 
 The app services wait for `maintenance` to be healthy before they start. The whole repo is bind-mounted into every container at `/monorepo`, so edits are visible everywhere at once.
 
-Turborepo runs the work (lint, format, type checks, builds, code generation). It does not start the apps: Compose does, each app in its ecosystem's way — the Node apps through a `package.json` script (`pnpm run dev:lean`), the Go app through its Go command written in the Compose file.
+Turborepo runs the work (lint, format, type checks, builds, code generation). It does not start the apps in the containers: Compose does, calling each app's program directly (`vite`, `tsx`, `wgo`), with no `pnpm run` or `go tool` in between.
 
 ### Lean and full mode
 
@@ -52,7 +54,7 @@ docker compose up -d                                          # lean: apps only
 docker compose -f compose.yaml -f compose.full.yaml up -d     # full: apps with their debuggers on
 ```
 
-In full mode the Node apps listen for a debugger on port 9229 and the Go app on port 2345. These ports are not published to the host; attach from the `workspace` container using the launch configurations in each app's `.vscode/launch.json`.
+In full mode the Node apps listen for a debugger on port 9229 and the Go app on port 2345. These ports are not published to the host; attach from the `workspace` container using the "(Docker)" launch configuration in each app's `.vscode/launch.json`.
 
 ### Working in the repo
 
@@ -63,11 +65,34 @@ pnpm turbo run lint:check     # or: format:check, check, build, test
 pnpm turbo run build --filter=@iob-exploring-monorepo/web
 ```
 
+### Changing how an app starts
+
+Each app's start command is written twice: in `compose.yaml` (and its full-mode version in `compose.full.yaml`), and as the app's `dev:lean` / `dev:full` scripts in its `package.json`, which the [host run](#quick-run-without-docker) uses. **When you change one, change the other in the same commit.** The only intended difference: the scripts call Go tools through `go tool`.
+
 ### Tool versions
 
 Every toolchain version (Node, pnpm, Go, the Go linter, the OS release of the images) is written once, in the build arguments at the top of `compose.yaml`. After changing one, rebuild with `docker compose up -d --build`.
 
 Go's version is also written in `go.work` and each `go.mod`; `./scripts/update-go-version.sh`, run inside `workspace`, copies it there from `compose.yaml`.
+
+## Quick run without Docker
+
+For a quick look only, not for development. You need Node, pnpm and Go installed; their versions are not checked (the ones the containers use are at the top of `compose.yaml`).
+
+```bash
+pnpm install
+pnpm dev:lean     # or: pnpm dev:full, with the debuggers on
+```
+
+One command starts everything: Turborepo generates the TS types from the Go structs (and regenerates them on change), then starts the three apps, each with its own reload:
+
+- web: http://localhost:5173
+- TS API: http://localhost:3001/random-user
+- Go API: http://localhost:3006/random-user
+
+In full mode the debuggers listen on `127.0.0.1` only: the Go app on port 2345, each Node app on a random free port (so the two don't clash). Attach with the "(host)" configuration in each app's `.vscode/launch.json`; for the Node apps it lists the running processes to pick from.
+
+Don't switch between this and the containers in the same clone: both use the same `node_modules`, and each side will reinstall it for itself.
 
 ## Notes
 

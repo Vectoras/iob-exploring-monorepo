@@ -5,6 +5,16 @@
     "generate": {
       "outputs": ["ts/generated/**"]
     },
+    "dev:lean": {
+      "dependsOn": ["^generate"],
+      "persistent": true,
+      "cache": false
+    },
+    "dev:full": {
+      "dependsOn": ["^generate"],
+      "persistent": true,
+      "cache": false
+    },
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]

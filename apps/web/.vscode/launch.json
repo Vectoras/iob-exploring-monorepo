@@ -2,11 +2,19 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Attach to web",
+      "name": "Attach to web (Docker)",
       "type": "node",
       "request": "attach",
       "address": "web",
       "port": 9229,
+      "restart": true,
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "name": "Attach to web (host)",
+      "type": "node",
+      "request": "attach",
+      "processId": "${command:PickProcess}",
       "restart": true,
       "skipFiles": ["<node_internals>/**"]
     }

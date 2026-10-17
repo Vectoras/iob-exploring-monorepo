@@ -1,5 +1,8 @@
 # Full mode: every dev service runs with its debugger on.
-# Node apps run their `dev:debug` script; the Go app runs its debug command directly.
+# Every app calls its program directly, as in compose.yaml.
+# KEEP IN STEP: each command here is also the app's `dev:full` script in its
+# package.json; change both in the same commit. The scripts' debugger address differs
+# on purpose (see the note in compose.yaml).
 # Start with: docker compose -f compose.yaml -f compose.full.yaml up -d
 # Back to lean: docker compose up -d
 
@@ -8,16 +11,39 @@ services:
     # -xdir tmp: see compose.yaml.
     command:
       [
-        "sh",
-        "-c",
-        "go tool wgo -xdir tmp go build -gcflags='all=-N -l' -o ./tmp/server . :: go tool dlv exec ./tmp/server --headless --listen=:2345 --api-version=2 --accept-multiclient --continue",
+        "wgo",
+        "-xdir",
+        "tmp",
+        "go",
+        "build",
+        "-gcflags=all=-N -l",
+        "-o",
+        "./tmp/server",
+        ".",
+        "::",
+        "dlv",
+        "exec",
+        "./tmp/server",
+        "--headless",
+        "--listen=:2345",
+        "--api-version=2",
+        "--accept-multiclient",
+        "--continue",
       ]
     # Uncomment if Delve cannot start the server without it.
     # cap_add:
     #   - SYS_PTRACE
 
   api_ts:
-    command: ["pnpm", "run", "dev:debug"]
+    command:
+      [
+        "./node_modules/.bin/tsx",
+        "watch",
+        "--inspect=0.0.0.0:9229",
+        "src/index.ts",
+      ]
 
   web:
-    command: ["pnpm", "run", "dev:debug"]
+    environment:
+      - NODE_OPTIONS=--inspect=0.0.0.0:9229
+    command: ["./node_modules/.bin/vite", "dev"]
