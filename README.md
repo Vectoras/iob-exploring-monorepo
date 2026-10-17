@@ -92,6 +92,14 @@ One command starts everything: Turborepo generates the TS types from the Go stru
 
 In full mode the debuggers listen on `127.0.0.1` only: the Go app on port 2345, each Node app on a random free port (so the two don't clash). Attach with the "(host)" configuration in each app's `.vscode/launch.json`; for the Node apps it lists the running processes to pick from.
 
+Known limit: after Ctrl+C, the Go API (and in full mode its debugger) is sometimes left running, still holding ports 3006 and 2345, so the next start fails on those ports. Stop the leftovers with:
+
+```bash
+pkill -f 'dlv exec ./tmp/server'; pkill -f 'tmp/server$'
+```
+
+(Cause: `go tool` passes the interrupt on to the Go reload watcher, which then gets it twice and exits without stopping the server it started. Not fixed on purpose: the host run is for a quick look only.)
+
 Don't switch between this and the containers in the same clone: both use the same `node_modules`, and each side will reinstall it for itself.
 
 ## Notes

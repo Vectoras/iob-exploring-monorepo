@@ -30,9 +30,6 @@ services:
         "--accept-multiclient",
         "--continue",
       ]
-    # Uncomment if Delve cannot start the server without it.
-    # cap_add:
-    #   - SYS_PTRACE
 
   api_ts:
     command:

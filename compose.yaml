@@ -13,7 +13,7 @@ name: exploring_monorepo
 x-versions-args: &versions-args
   NODE_VERSION: 24.21.0
   OS_RELEASE: trixie
-  PNPM_VERSION: 11.25.0
+  PNPM_VERSION: 12.14.0
   GO_VERSION: 1.27.2
   GOLANGCI_VERSION: 2.14.0
   CACHE_DIR: /monorepo/.cache
