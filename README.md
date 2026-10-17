@@ -73,7 +73,14 @@ Each app's start command is written twice: in `compose.yaml` (and its full-mode 
 
 Every toolchain version (Node, pnpm, Go, the Go linter, the OS release of the images) is written once, in the build arguments at the top of `compose.yaml`. After changing one, rebuild with `docker compose up -d --build`.
 
-Go's version is also written in `go.work` and each `go.mod`; `./scripts/update-go-version.sh`, run inside `workspace`, copies it there from `compose.yaml`.
+Some versions are also written elsewhere. `compose.yaml` stays the source of truth: change a version there by hand, rebuild, then run the matching script inside `workspace`. The scripts never write `compose.yaml`, and they change the other places only through the tools' own commands.
+
+| Script                             | What it does                                                                                                                                                                               |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `./scripts/check-versions.sh`      | Changes nothing. Reports everything out of step with `compose.yaml` and which script fixes it; exits 1 if anything is. Run it routinely, to see whether an update is needed, and after one |
+| `./scripts/update-go-version.sh`   | Sets the `go` line of `go.work` and every `go.mod`                                                                                                                                         |
+| `./scripts/update-pnpm-version.sh` | Sets the pnpm range in the root `package.json` to the new major (until then every pnpm command fails with a version error, on purpose); then restart `maintenance`                         |
+| `./scripts/update-node-types.sh`   | Moves `@types/node` to Node's major, as an exact version, in every package that lists it                                                                                                   |
 
 ## Quick run without Docker
 

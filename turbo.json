@@ -1,5 +1,5 @@
 {
-  "$schema": "https://v2-11-2.turborepo.dev/schema.json",
+  "$schema": "./node_modules/turbo/schema.json",
   "globalPassThroughEnv": ["GOPATH", "GOCACHE", "GOTOOLCHAIN"],
   "tasks": {
     "generate": {
