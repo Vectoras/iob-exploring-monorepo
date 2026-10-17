@@ -14,6 +14,7 @@ packages/
   go-types/                Go structs, mirrored to TS via tygo
   ui-components/           Shared Svelte component library (Storybook)
 scripts/                   Repo maintenance scripts
+tools/                     Go dev tools (wgo, Delve, tygo): a Go module with no code, outside go.work
 ```
 
 All workspace packages are scoped under `@iob-exploring-monorepo/*`.
@@ -67,7 +68,20 @@ pnpm turbo run build --filter=@iob-exploring-monorepo/web
 
 ### Changing how an app starts
 
-Each app's start command is written twice: in `compose.yaml` (and its full-mode version in `compose.full.yaml`), and as the app's `dev:lean` / `dev:full` scripts in its `package.json`, which the [host run](#quick-run-without-docker) uses. **When you change one, change the other in the same commit.** The only intended difference: the scripts call Go tools through `go tool`.
+Each app's start command is written twice: in `compose.yaml` (and its full-mode version in `compose.full.yaml`), and as the app's `dev:lean` / `dev:full` scripts in its `package.json`, which the [host run](#quick-run-without-docker) uses. **When you change one, change the other in the same commit.** The only intended difference: in full mode the scripts' debuggers listen on `127.0.0.1`, the Node ones on a random port.
+
+### Go dev tools
+
+The Go programs used in development (wgo, Delve, tygo) are listed in `tools/go.mod`, a module of their own with no code. It is kept out of `go.work`, so the tools' dependencies never change the versions the apps build with. `maintenance` installs them into `$GOPATH/bin` (on `PATH` in every container), and everything calls them by name.
+
+Add or upgrade a tool inside `workspace`, then restart `maintenance`:
+
+```bash
+GOWORK=off go -C tools get -tool <module path>@<version>
+docker compose restart maintenance   # on the host
+```
+
+`GOWORK=off` is needed for every command in `tools/`: with the workspace on, Go works on the workspace's modules instead.
 
 ### Tool versions
 
@@ -88,6 +102,8 @@ For a quick look only, not for development. You need Node, pnpm and Go installed
 
 ```bash
 pnpm install
+(cd tools && GOWORK=off go install tool)    # the Go dev tools
+export PATH="$PATH:$(go env GOPATH)/bin"   # if Go's bin folder isn't on your PATH yet
 pnpm dev:lean     # or: pnpm dev:full, with the debuggers on
 ```
 
@@ -98,14 +114,6 @@ One command starts everything: Turborepo generates the TS types from the Go stru
 - Go API: http://localhost:3006/random-user
 
 In full mode the debuggers listen on `127.0.0.1` only: the Go app on port 2345, each Node app on a random free port (so the two don't clash). Attach with the "(host)" configuration in each app's `.vscode/launch.json`; for the Node apps it lists the running processes to pick from.
-
-Known limit: after Ctrl+C, the Go API (and in full mode its debugger) is sometimes left running, still holding ports 3006 and 2345, so the next start fails on those ports. Stop the leftovers with:
-
-```bash
-pkill -f 'dlv exec ./tmp/server'; pkill -f 'tmp/server$'
-```
-
-(Cause: `go tool` passes the interrupt on to the Go reload watcher, which then gets it twice and exits without stopping the server it started. Not fixed on purpose: the host run is for a quick look only.)
 
 Don't switch between this and the containers in the same clone: both use the same `node_modules`, and each side will reinstall it for itself.
 

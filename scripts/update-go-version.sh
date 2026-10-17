@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Sets the `go` line of every module listed in go.work, and of go.work itself.
+# Sets the `go` line of every module listed in go.work, of go.work itself, and of the
+# tools module (tools/, outside go.work).
 #
 # The version comes from the GO_VERSION build argument in compose.yaml, which is the
 # source of truth. A version passed as argument is used instead; if it differs from
@@ -55,3 +56,6 @@ done
 
 go work edit -go="${version}"
 echo "go.work: go ${version}"
+
+go mod edit -go="${version}" tools/go.mod
+echo "tools/go.mod: go ${version}"

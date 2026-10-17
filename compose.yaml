@@ -49,7 +49,7 @@ services:
     command: ["sleep", "infinity"]
 
   # Prepares what the other services need, then keeps it up to date:
-  #   1. installs the dependencies and builds the Go tools
+  #   1. installs the dependencies and builds the Go tools (from tools/, outside go.work)
   #   2. generates code once (every package with a `generate` script)
   #   3. marks itself ready: the app services wait for this (see the healthcheck)
   #   4. stays alive, regenerating when a package with a `generate` script changes
@@ -69,7 +69,7 @@ services:
       [
         "sh",
         "-c",
-        "rm -f /tmp/ready && pnpm install && go install tool && pnpm turbo run generate && touch /tmp/ready && exec pnpm turbo watch generate",
+        "rm -f /tmp/ready && pnpm install && GOWORK=off go -C tools install tool && pnpm turbo run generate && touch /tmp/ready && exec pnpm turbo watch generate",
       ]
     # Healthy once the marker exists. Checked every second while starting, so the
     # app services start as soon as step 3 is reached.
@@ -84,7 +84,7 @@ services:
 
   # Every app service calls its program directly, with no wrapper process kept alive
   # (no shell, no `go tool`, no `pnpm run`). wgo comes from $GOPATH/bin, filled by
-  # `maintenance` (`go install tool`); the Node programs from the app's node_modules/.bin.
+  # `maintenance` from the tools module (tools/); the Node programs from the app's node_modules/.bin.
   # -xdir tmp: the build writes into tmp/, inside the watched folder. Without the
   # exclusion the build would trigger the watcher and the server would start twice.
   #
@@ -92,8 +92,7 @@ services:
   # the app's package.json (and its full-mode command, in compose.full.yaml, as
   # `dev:full`). Those scripts are for running the repo on the host without Docker
   # (`pnpm dev:lean` at the root). Whenever a command changes in one place, change it
-  # in the other in the same commit. Two intended differences:
-  #   - the scripts call Go tools through `go tool`: a host may not have $GOPATH/bin on PATH
+  # in the other in the same commit. One intended difference:
   #   - in `dev:full`, the debuggers listen on 127.0.0.1 only, and the Node apps on a random
   #     port (`--inspect=0`): on one host, a fixed port would clash between the two Node apps,
   #     and 0.0.0.0 would open the debuggers to the local network

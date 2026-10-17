@@ -46,13 +46,16 @@ check_image "Go" "$go_v" "$(go env GOVERSION | sed 's/^go//')"
 check_image "Go linter" "$lint_v" "$(golangci-lint version --short)"
 
 echo
-echo "Go: the go line of go.work and every module (fix: ./scripts/update-go-version.sh)"
+echo "Go: the go line of go.work, every module and the tools module (fix: ./scripts/update-go-version.sh)"
 work_v=$(go work edit -json | node -e 'console.log(JSON.parse(require("fs").readFileSync(0, "utf8")).Go)')
 if [[ $work_v == "$go_v" ]]; then ok "go.work: go ${work_v}"; else bad "go.work: go ${work_v}, compose.yaml says ${go_v}"; fi
 while read -r dir mod_v; do
   rel=${dir#"$PWD"/}
   if [[ $mod_v == "$go_v" ]]; then ok "${rel}/go.mod: go ${mod_v}"; else bad "${rel}/go.mod: go ${mod_v}, compose.yaml says ${go_v}"; fi
 done < <(go list -m -f '{{.Dir}} {{.GoVersion}}')
+# The tools module is outside go.work, so `go list -m` above doesn't see it.
+tools_v=$(go mod edit -json tools/go.mod | node -e 'console.log(JSON.parse(require("fs").readFileSync(0, "utf8")).Go)')
+if [[ $tools_v == "$go_v" ]]; then ok "tools/go.mod: go ${tools_v}"; else bad "tools/go.mod: go ${tools_v}, compose.yaml says ${go_v}"; fi
 
 echo
 echo "pnpm: the range in the root package.json (fix: ./scripts/update-pnpm-version.sh)"

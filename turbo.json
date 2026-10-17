@@ -3,6 +3,7 @@
   "globalPassThroughEnv": ["GOPATH", "GOCACHE", "GOTOOLCHAIN"],
   "tasks": {
     "generate": {
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/tools/go.mod"],
       "outputs": ["ts/generated/**"]
     },
     "dev:lean": {
